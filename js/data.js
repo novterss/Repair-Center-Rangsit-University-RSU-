@@ -4,62 +4,71 @@
    Data Layer - ERD based storage & LocalStorage Mock DB
    ========================================================================== */
 
-const STORAGE_KEY_PREFIX = 'rsu_repair_sys_';
+const STORAGE_KEY_PREFIX = 'rsu_repair_v5_';
 
-// Initial Mock Database based on ERD and Rangsit University Campus Map
+// Initial Mock Database based on ERD and Rangsit University Student Team
 const DEFAULT_USERS = [
   {
     user_id: 1,
+    student_id: "6800401",
     email: "naphatcharakan.p68@rsu.ac.th",
     password: "admin123",
-    full_name: "ณภัทรกัญจน์ ป.",
+    full_name: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา",
+    display_title: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา (6800401)",
     phone: "ต่อ 1302",
     department: "วิทยาลัยนวัตกรรมดิจิทัลเทคโนโลยี",
     role: "ผู้ดูแลระบบ",
-    avatar: "ณภ"
+    avatar: "ณพ"
   },
   {
     user_id: 2,
-    email: "somchai.p@rsu.ac.th",
+    student_id: "6803317",
+    email: "thanakorn.y68@rsu.ac.th",
     password: "password123",
-    full_name: "สมชาย พูนทรัพย์",
+    full_name: "ธนากร ยั่งยืน",
+    display_title: "ธนากร ยั่งยืน (6803317)",
     phone: "ต่อ 1206",
     department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
     role: "ช่างเทคนิค",
     title_role: "ช่างระบบปรับอากาศ (ประจำตึก 1-5)",
-    avatar: "สช"
+    avatar: "ธน"
   },
   {
     user_id: 3,
-    email: "anan.w@rsu.ac.th",
+    student_id: "6803162",
+    email: "sorawit.t68@rsu.ac.th",
     password: "password123",
-    full_name: "อนันต์ วัฒนกุล",
-    phone: "ต่อ 1201",
-    department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
-    role: "ผู้ดูแลระบบ",
-    avatar: "อน"
+    full_name: "สรวิชญ์ ทองพลับ",
+    display_title: "สรวิชญ์ ทองพลับ (6803162)",
+    phone: "ต่อ 1305",
+    department: "วิทยาลัยนวัตกรรมดิจิทัลเทคโนโลยี",
+    role: "เจ้าหน้าที่",
+    avatar: "สร"
   },
   {
     user_id: 4,
-    email: "wichai.k@rsu.ac.th",
+    student_id: "6803498",
+    email: "naphat.s68@rsu.ac.th",
     password: "password123",
-    full_name: "วิชัย แก้วดี",
+    full_name: "ณภัทร สาระคำ",
+    display_title: "ณภัทร สาระคำ (6803498)",
     phone: "ต่อ 1208",
     department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
     role: "ช่างเทคนิค",
     title_role: "ช่างระบบไฟฟ้าและประปา (ประจำตึก 6-12)",
-    avatar: "วิ"
+    avatar: "ณภ"
   },
   {
     user_id: 5,
-    email: "kitti.s@rsu.ac.th",
+    student_id: "6804265",
+    email: "chartwut.t68@rsu.ac.th",
     password: "password123",
-    full_name: "กิตติ ศรีสุข",
-    phone: "ต่อ 1209",
+    full_name: "ชาติวุฒิ ทองจีน",
+    display_title: "ชาติวุฒิ ทองจีน (6804265)",
+    phone: "ต่อ 1201",
     department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
-    role: "ช่างเทคนิค",
-    title_role: "ช่างเทคนิคคอมพิวเตอร์และสื่อโสต (ตึก 15)",
-    avatar: "กิต"
+    role: "ผู้ดูแลระบบ",
+    avatar: "ชา"
   }
 ];
 
@@ -158,7 +167,7 @@ const DEFAULT_REPAIRS = [
   {
     request_id: 1,
     ticket_no: "RQ-691028-014",
-    requester_id: 1,
+    requester_id: 3,
     technician_id: 2,
     equipment_id: 1,
     problem_title: "เครื่องปรับอากาศไม่เย็น",
@@ -173,7 +182,7 @@ const DEFAULT_REPAIRS = [
     request_time: "08:45 น.",
     request_datetime: "28 ตุลาคม 2569 เวลา 08:45 น.",
     assigned_date: "28 ต.ค. 2569, 09:00 น.",
-    assigned_by: "อนันต์ วัฒนกุล",
+    assigned_by: "ชาติวุฒิ ทองจีน (6804265)",
     expected_date: "28 ต.ค. 2569",
     expected_time: "12:00 น.",
     completed_date: null,
@@ -183,21 +192,21 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 28 ต.ค. 2569, 08:45 น.",
+        user_info: "สรวิชญ์ ทองพลับ · 28 ต.ค. 2569, 08:45 น.",
         note: "แจ้งเครื่องปรับอากาศไม่เย็น",
         status: "done"
       },
       {
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
-        user_info: "อนันต์ วัฒนกุล · 28 ต.ค., 09:00 น.",
-        note: "มอบหมายให้ สมชาย พูนทรัพย์ (ช่างประจำตึก 1-5)",
+        user_info: "ชาติวุฒิ ทองจีน · 28 ต.ค., 09:00 น.",
+        note: "มอบหมายให้ ธนากร ยั่งยืน (ช่างประจำตึก 1-5)",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "สมชาย พูนทรัพย์ · 28 ต.ค., 10:15 น.",
+        user_info: "ธนากร ยั่งยืน · 28 ต.ค., 10:15 น.",
         note: "ตรวจพบสารทำความเย็นรั่ว กำลังซ่อมจุดรั่ว",
         status: "active"
       },
@@ -238,7 +247,7 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 28 ต.ค. 2569, 08:30 น.",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 28 ต.ค. 2569, 08:30 น.",
         note: "เครื่องพิมพ์กระดาษติด",
         status: "done"
       },
@@ -268,7 +277,7 @@ const DEFAULT_REPAIRS = [
   {
     request_id: 3,
     ticket_no: "RQ-691028-012",
-    requester_id: 1,
+    requester_id: 3,
     technician_id: 4,
     equipment_id: 3,
     problem_title: "โคมไฟทางเดินดับ",
@@ -283,7 +292,7 @@ const DEFAULT_REPAIRS = [
     request_time: "08:15 น.",
     request_datetime: "28 ตุลาคม 2569 เวลา 08:15 น.",
     assigned_date: "28 ต.ค. 2569, 08:40 น.",
-    assigned_by: "อนันต์ วัฒนกุล",
+    assigned_by: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา",
     expected_date: "28 ต.ค. 2569",
     expected_time: "16:00 น.",
     completed_date: null,
@@ -293,21 +302,21 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 28 ต.ค. 2569, 08:15 น.",
+        user_info: "สรวิชญ์ ทองพลับ · 28 ต.ค. 2569, 08:15 น.",
         note: "โคมไฟทางเดินดับ",
         status: "done"
       },
       {
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
-        user_info: "อนันต์ วัฒนกุล · 28 ต.ค., 08:40 น.",
-        note: "มอบหมายให้ วิชัย แก้วดี",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 28 ต.ค., 08:40 น.",
+        note: "มอบหมายให้ ณภัทร สาระคำ",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "วิชัย แก้วดี · 28 ต.ค., 09:30 น.",
+        user_info: "ณภัทร สาระคำ · 28 ต.ค., 09:30 น.",
         note: "กำลังนำหลอดอะไหล่มาเปลี่ยน",
         status: "active"
       },
@@ -338,7 +347,7 @@ const DEFAULT_REPAIRS = [
     request_time: "14:20 น.",
     request_datetime: "27 ตุลาคม 2569 เวลา 14:20 น.",
     assigned_date: "27 ต.ค. 2569, 14:40 น.",
-    assigned_by: "อนันต์ วัฒนกุล",
+    assigned_by: "ชาติวุฒิ ทองจีน",
     expected_date: "27 ต.ค. 2569",
     expected_time: "17:00 น.",
     completed_date: "27 ต.ค. 2569 16:30",
@@ -348,28 +357,28 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 27 ต.ค. 2569, 14:20 น.",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 27 ต.ค. 2569, 14:20 น.",
         note: "ก๊อกน้ำรั่วซึม",
         status: "done"
       },
       {
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
-        user_info: "อนันต์ วัฒนกุล · 27 ต.ค., 14:40 น.",
-        note: "มอบหมายให้ วิชัย แก้วดี",
+        user_info: "ชาติวุฒิ ทองจีน · 27 ต.ค., 14:40 น.",
+        note: "มอบหมายให้ ณภัทร สาระคำ",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "วิชัย แก้วดี · 27 ต.ค., 15:10 น.",
+        user_info: "ณภัทร สาระคำ · 27 ต.ค., 15:10 น.",
         note: "เปลี่ยนอะไหล่วาล์วน้ำ",
         status: "done"
       },
       {
         step: 4,
         title: "ซ่อมเสร็จและตรวจรับ",
-        user_info: "ศิริพร ใจดี · 27 ต.ค., 16:30 น.",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 27 ต.ค., 16:30 น.",
         note: "ยืนยันตรวจรับงานเรียบร้อย",
         status: "done"
       }
@@ -378,8 +387,8 @@ const DEFAULT_REPAIRS = [
   {
     request_id: 5,
     ticket_no: "RQ-691027-010",
-    requester_id: 1,
-    technician_id: 5,
+    requester_id: 3,
+    technician_id: 2,
     equipment_id: 5,
     problem_title: "คอมพิวเตอร์ตัดต่อเปิดไม่ติด",
     problem_detail: "เปิดเครื่องสตูดิโอตัดต่อแล้วพัดลมหมุนแป๊บเดียวแล้วดับ ไฟกระพริบสีส้ม",
@@ -393,7 +402,7 @@ const DEFAULT_REPAIRS = [
     request_time: "11:10 น.",
     request_datetime: "27 ตุลาคม 2569 เวลา 11:10 น.",
     assigned_date: "27 ต.ค. 2569, 13:00 น.",
-    assigned_by: "อนันต์ วัฒนกุล",
+    assigned_by: "ชาติวุฒิ ทองจีน",
     expected_date: "28 ต.ค. 2569",
     expected_time: "15:00 น.",
     completed_date: null,
@@ -403,21 +412,21 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 27 ต.ค. 2569, 11:10 น.",
+        user_info: "สรวิชญ์ ทองพลับ · 27 ต.ค. 2569, 11:10 น.",
         note: "คอมพิวเตอร์เปิดไม่ติด",
         status: "done"
       },
       {
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
-        user_info: "อนันต์ วัฒนกุล · 27 ต.ค., 13:00 น.",
-        note: "มอบหมายให้ กิตติ ศรีสุข",
+        user_info: "ชาติวุฒิ ทองจีน · 27 ต.ค., 13:00 น.",
+        note: "มอบหมายให้ ธนากร ยั่งยืน",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "กิตติ ศรีสุข · 28 ต.ค., 09:00 น.",
+        user_info: "ธนากร ยั่งยืน · 28 ต.ค., 09:00 น.",
         note: "เปลี่ยนเพาเวอร์ซัพพลายและลงระบบทดสอบ",
         status: "active"
       },
@@ -448,7 +457,7 @@ const DEFAULT_REPAIRS = [
     request_time: "09:15 น.",
     request_datetime: "27 ตุลาคม 2569 เวลา 09:15 น.",
     assigned_date: "27 ต.ค. 2569, 09:45 น.",
-    assigned_by: "อนันต์ วัฒนกุล",
+    assigned_by: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา",
     expected_date: "27 ต.ค. 2569",
     expected_time: "12:00 น.",
     completed_date: "27 ต.ค. 2569 11:45",
@@ -458,28 +467,28 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 27 ต.ค. 2569, 09:15 น.",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 27 ต.ค. 2569, 09:15 น.",
         note: "ประตูห้องปิดไม่สนิท",
         status: "done"
       },
       {
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
-        user_info: "อนันต์ วัฒนกุล · 27 ต.ค., 09:45 น.",
-        note: "มอบหมายให้ สมชาย พูนทรัพย์",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 27 ต.ค., 09:45 น.",
+        note: "มอบหมายให้ ธนากร ยั่งยืน",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "สมชาย พูนทรัพย์ · 27 ต.ค., 10:30 น.",
+        user_info: "ธนากร ยั่งยืน · 27 ต.ค., 10:30 น.",
         note: "ปรับตั้งและทดสอบการเปิด-ปิด",
         status: "done"
       },
       {
         step: 4,
         title: "ซ่อมเสร็จและตรวจรับ",
-        user_info: "ศิริพร ใจดี · 27 ต.ค., 11:45 น.",
+        user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 27 ต.ค., 11:45 น.",
         note: "ตรวจรับงานเรียบร้อย",
         status: "done"
       }
@@ -488,8 +497,8 @@ const DEFAULT_REPAIRS = [
   {
     request_id: 7,
     ticket_no: "RQ-691027-008",
-    requester_id: 1,
-    technician_id: 2,
+    requester_id: 3,
+    technician_id: 4,
     equipment_id: 7,
     problem_title: "เครื่องปรับอากาศมีน้ำหยด",
     problem_detail: "แอร์ห้องแล็บวิศวกรรมมีน้ำหยดลงบนโต๊ะเครื่องมือ ท่อน้ำทิ้งน่าจะอุดตัน",
@@ -503,7 +512,7 @@ const DEFAULT_REPAIRS = [
     request_time: "08:50 น.",
     request_datetime: "27 ตุลาคม 2569 เวลา 08:50 น.",
     assigned_date: "27 ต.ค. 2569, 09:15 น.",
-    assigned_by: "อนันต์ วัฒนกุล",
+    assigned_by: "ชาติวุฒิ ทองจีน",
     expected_date: "29 ต.ค. 2569",
     expected_time: "14:00 น.",
     completed_date: null,
@@ -513,15 +522,15 @@ const DEFAULT_REPAIRS = [
       {
         step: 1,
         title: "ส่งคำขอแจ้งซ่อม",
-        user_info: "ศิริพร ใจดี · 27 ต.ค. 2569, 08:50 น.",
+        user_info: "สรวิชญ์ ทองพลับ · 27 ต.ค. 2569, 08:50 น.",
         note: "เครื่องปรับอากาศมีน้ำหยด",
         status: "done"
       },
       {
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
-        user_info: "อนันต์ วัฒนกุล · 27 ต.ค., 09:15 น.",
-        note: "มอบหมายให้ สมชาย พูนทรัพย์",
+        user_info: "ชาติวุฒิ ทองจีน · 27 ต.ค., 09:15 น.",
+        note: "มอบหมายให้ ณภัทร สาระคำ",
         status: "done"
       },
       {
@@ -553,7 +562,7 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ล้างแผงกรอง / ตรวจน้ำยา",
     frequency: "ทุก 3 เดือน",
     next_due_date: "27 ต.ค. 2569",
-    technician_name: "สมชาย พูนทรัพย์",
+    technician_name: "ธนากร ยั่งยืน",
     status: "เกินกำหนด"
   },
   {
@@ -566,20 +575,20 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ล้างแผงกรอง / ตรวจน้ำยา",
     frequency: "ทุก 3 เดือน",
     next_due_date: "30 ต.ค. 2569",
-    technician_name: "สมชาย พูนทรัพย์",
+    technician_name: "ธนากร ยั่งยืน",
     status: "ใกล้ครบกำหนด"
   },
   {
     plan_id: 3,
     code: "PM-6910-022",
     equipment_id: 7,
-    technician_id: 2,
+    technician_id: 4,
     equipment_name: "AC-004 · เครื่องปรับอากาศ",
     location: "ตึก 5 อาคารวิษณุรัตน์ · ชั้น 3",
     task: "ล้างแผงกรอง / ตรวจน้ำยา",
     frequency: "ทุก 3 เดือน",
     next_due_date: "30 ต.ค. 2569",
-    technician_name: "สมชาย พูนทรัพย์",
+    technician_name: "ณภัทร สาระคำ",
     status: "ใกล้ครบกำหนด"
   },
   {
@@ -592,7 +601,7 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ทำความสะอาด / ทดสอบพิมพ์",
     frequency: "ทุก 6 เดือน",
     next_due_date: "3 พ.ย. 2569",
-    technician_name: "กิตติ ศรีสุข",
+    technician_name: "ชาติวุฒิ ทองจีน",
     status: "รอดำเนินการ"
   },
   {
@@ -605,7 +614,7 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ตรวจสายไฟและจุดต่อ",
     frequency: "ทุก 6 เดือน",
     next_due_date: "5 พ.ย. 2569",
-    technician_name: "วิชัย แก้วดี",
+    technician_name: "ณภัทร สาระคำ",
     status: "รอดำเนินการ"
   },
   {
@@ -618,7 +627,7 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ทำความสะอาด / ตรวจระบบ",
     frequency: "ทุก 6 เดือน",
     next_due_date: "6 พ.ย. 2569",
-    technician_name: "กิตติ ศรีสุข",
+    technician_name: "ชาติวุฒิ ทองจีน",
     status: "รอดำเนินการ"
   },
   {
@@ -631,7 +640,7 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ตรวจรอยรั่วและวาล์วน้ำ",
     frequency: "ทุก 3 เดือน",
     next_due_date: "10 พ.ย. 2569",
-    technician_name: "วิชัย แก้วดี",
+    technician_name: "ณภัทร สาระคำ",
     status: "รอดำเนินการ"
   }
 ];
@@ -657,11 +666,43 @@ const DB = {
     localStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(value));
   },
   init() {
-    if (!this.get('users')) this.set('users', DEFAULT_USERS);
-    if (!this.get('equipment')) this.set('equipment', DEFAULT_EQUIPMENT);
-    if (!this.get('repairs')) this.set('repairs', DEFAULT_REPAIRS);
-    if (!this.get('plans')) this.set('plans', DEFAULT_MAINTENANCE_PLANS);
-    if (!this.get('currentUser')) this.set('currentUser', DEFAULT_USERS[0]); // default to ศิริพร ใจดี
+    // Clean old caches if present
+    try {
+      ['rsu_repair_sys_', 'rsu_repair_v2_', 'rsu_repair_v3_', 'rsu_repair_v4_'].forEach(p => {
+        if (p !== STORAGE_KEY_PREFIX) {
+          Object.keys(localStorage).filter(k => k.startsWith(p)).forEach(k => localStorage.removeItem(k));
+        }
+      });
+    } catch(e) {}
+
+    const existingUsers = this.get('users');
+    const isOldData = !existingUsers || !Array.isArray(existingUsers) || !existingUsers.some(u => u.student_id === "6800401");
+    if (isOldData) {
+      this.set('users', DEFAULT_USERS);
+      this.set('currentUser', DEFAULT_USERS[0]);
+      this.set('repairs', DEFAULT_REPAIRS);
+      this.set('equipment', DEFAULT_EQUIPMENT);
+      this.set('plans', DEFAULT_MAINTENANCE_PLANS);
+    } else {
+      if (!this.get('equipment')) this.set('equipment', DEFAULT_EQUIPMENT);
+      if (!this.get('repairs')) this.set('repairs', DEFAULT_REPAIRS);
+      if (!this.get('plans')) this.set('plans', DEFAULT_MAINTENANCE_PLANS);
+      if (!this.get('currentUser')) this.set('currentUser', DEFAULT_USERS[0]);
+    }
+  },
+  isLoggedIn() {
+    return localStorage.getItem(STORAGE_KEY_PREFIX + 'is_logged_in') === 'true';
+  },
+  setLoggedIn(status) {
+    if (status) {
+      localStorage.setItem(STORAGE_KEY_PREFIX + 'is_logged_in', 'true');
+    } else {
+      localStorage.removeItem(STORAGE_KEY_PREFIX + 'is_logged_in');
+    }
+  },
+  logout() {
+    this.setLoggedIn(false);
+    window.location.href = 'login.html';
   },
   getCurrentUser() {
     return this.get('currentUser', DEFAULT_USERS[0]);
@@ -697,7 +738,6 @@ const DB = {
     if (user) {
       user.password = newPassword;
       this.set('users', users);
-      // If current user is this user, update current user too
       const current = this.getCurrentUser();
       if (current && current.email.toLowerCase() === email.toLowerCase()) {
         current.password = newPassword;
@@ -732,7 +772,7 @@ const DB = {
         {
           step: 1,
           title: "ส่งคำขอแจ้งซ่อม",
-          user_info: `${request.requester_name || "ศิริพร ใจดี"} · 28 ต.ค. 2569, 11:30 น.`,
+          user_info: `${request.requester_name || "ณพัชรกัณฑ์ พัชญ์ชัยพงศา"} · 28 ต.ค. 2569, 11:30 น.`,
           note: request.problem_title || request.problem_detail?.substring(0, 30),
           status: "done"
         },

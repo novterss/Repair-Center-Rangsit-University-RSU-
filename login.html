@@ -267,17 +267,23 @@
           <!-- Quick Test Roles Selector -->
           <div class="test-accounts-box">
             <div class="fw-semibold text-secondary mb-2 d-flex align-items-center gap-1">
-              <i class="bi bi-person-badge"></i> ทดสอบด่วนโดยเลือกบทบาท:
+              <i class="bi bi-people-fill text-primary"></i> บัญชีสมาชิกกลุ่ม (คลิกเพื่อทดสอบเข้าสู่ระบบ):
             </div>
             <div class="d-flex flex-wrap gap-1">
-              <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickLogin(1)">
-                ณภัทรกัญจน์ (ผู้ดูแลระบบ)
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickLogin(1)" title="6800401">
+                ณพัชรกัณฑ์ (6800401)
               </button>
-              <button type="button" class="btn btn-sm btn-outline-danger" onclick="setQuickLogin(2)">
-                สมชาย (ช่างเทคนิค ตึก 13)
+              <button type="button" class="btn btn-sm btn-outline-danger" onclick="setQuickLogin(2)" title="6803317">
+                ธนากร (6803317)
               </button>
-              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickLogin(3)">
-                อนันต์ (ผู้ดูแลระบบ)
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickLogin(3)" title="6803162">
+                สรวิชญ์ (6803162)
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-success" onclick="setQuickLogin(4)" title="6803498">
+                ณภัทร (6803498)
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-info" onclick="setQuickLogin(5)" title="6804265">
+                ชาติวุฒิ (6804265)
               </button>
             </div>
           </div>
@@ -487,14 +493,19 @@
       const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
 
       if (matchedUser) {
+        if (matchedUser.password !== password) {
+          alert('รหัสผ่านไม่ถูกต้อง! กรุณาลองใหม่อีกครั้ง หรือกด "ลืมรหัสผ่าน?" เพื่อตั้งรหัสผ่านใหม่');
+          return;
+        }
         DB.setCurrentUser(matchedUser.user_id);
+        DB.setLoggedIn(true);
         if (matchedUser.role === 'ช่างเทคนิค') {
           window.location.href = 'assigned-tasks.html';
         } else {
           window.location.href = 'index.html';
         }
       } else {
-        alert('ไม่พบบัญชีผู้ใช้นี้ หรือรหัสผ่านไม่ถูกต้อง');
+        alert('ไม่พบบัญชีผู้ใช้นี้ในระบบ กรุณาตรวจสอบอีเมล หรือกด "ลงทะเบียนบุคลากรใหม่"');
       }
     }
   </script>

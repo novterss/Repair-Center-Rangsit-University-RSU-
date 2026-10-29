@@ -3,6 +3,17 @@
    App Shell Logic - Sidebar, Topbar, Mobile Drawer, User switcher, Toast
    ========================================================================== */
 
+// Auth Guard Check: If user is not logged in and not on login page, redirect to login.html
+(function checkAuthGuard() {
+  const currentPath = window.location.pathname;
+  const isLoginPage = currentPath.endsWith('login.html') || currentPath.endsWith('login');
+  if (!isLoginPage && typeof DB !== 'undefined') {
+    if (!DB.isLoggedIn()) {
+      window.location.href = 'login.html';
+    }
+  }
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   initAppShell();
   initUserDropdown();
@@ -28,6 +39,14 @@ function initAppShell() {
       backdrop.classList.remove('show');
     });
   }
+
+  // Intercept Sidebar Logout Links
+  document.querySelectorAll('.sidebar-logout a').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      DB.logout();
+    });
+  });
 
   // Update Topbar User Information from DB
   updateTopbarUser();
@@ -57,22 +76,25 @@ function initUserDropdown() {
   const menuContainer = document.getElementById('userProfileMenuOptions');
   if (menuContainer) {
     menuContainer.innerHTML = `
-      <div class="p-2 border-bottom text-muted small">สลับบทบาทผู้ใช้ (สำหรับทดสอบ)</div>
+      <div class="p-2 border-bottom text-muted small fw-semibold">สลับบทบาทผู้ใช้ (สำหรับทดสอบ)</div>
       ${users.map(u => `
         <li>
           <a class="dropdown-item d-flex align-items-center gap-2 py-2 ${u.user_id === currentUser.user_id ? 'bg-light font-weight-bold' : ''}" 
              href="javascript:void(0)" onclick="switchUserRole(${u.user_id})">
             <span class="user-avatar-initials" style="width: 28px; height: 28px; font-size: 11px;">${u.avatar}</span>
-            <div>
+            <div class="flex-grow-1">
               <div class="fw-semibold text-dark">${u.full_name}</div>
-              <div class="small text-muted">${u.role} (${u.department})</div>
+              <div class="small text-muted d-flex align-items-center gap-1">
+                ${u.student_id ? `<span class="badge bg-secondary-subtle text-secondary px-1 border" style="font-size: 10.5px;">${u.student_id}</span>` : ''}
+                <span>${u.role}</span>
+              </div>
             </div>
             ${u.user_id === currentUser.user_id ? '<i class="bi bi-check text-primary ms-auto fs-5"></i>' : ''}
           </a>
         </li>
       `).join('')}
       <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item text-danger d-flex align-items-center gap-2" href="login.html"><i class="bi bi-box-arrow-left"></i> ออกจากระบบ</a></li>
+      <li><a class="dropdown-item text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="DB.logout()"><i class="bi bi-box-arrow-left"></i> ออกจากระบบ</a></li>
     `;
   }
 }
