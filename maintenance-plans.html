@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แผนบำรุงรักษาเชิงป้องกัน - ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU Smart Repair)</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .month-nav-card {
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 12px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .month-stepper {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background-color: #f8fafc;
+      padding: 6px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      color: var(--text-main);
+    }
+    .month-step-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 2px 6px;
+      display: flex;
+      align-items: center;
+      border-radius: 4px;
+    }
+    .month-step-btn:hover {
+      background-color: #e2e8f0;
+      color: var(--text-main);
+    }
+    .status-counter-tags {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .plan-notice-card {
+      background-color: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="bi bi-tools"></i>
+        </div>
+        <div>
+          <div class="brand-title">ศูนย์บริการซ่อม</div>
+          <div class="brand-subtitle">มหาวิทยาลัยรังสิต (RSU)</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">พื้นที่ปฏิบัติงาน</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="index.html">
+            <i class="bi bi-grid-fill"></i>
+            <span>ภาพรวม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="new-request.html">
+            <i class="bi bi-plus-circle"></i>
+            <span>แจ้งซ่อมใหม่</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="track-repair.html">
+            <i class="bi bi-journal-text"></i>
+            <span>ติดตามงานซ่อม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="assigned-tasks.html">
+            <i class="bi bi-tools"></i>
+            <span>งานที่ได้รับมอบหมาย</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-title">การจัดการระบบ</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="assets.html">
+            <i class="bi bi-boxes"></i>
+            <span>ทะเบียนครุภัณฑ์</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item active">
+          <a href="maintenance-plans.html">
+            <i class="bi bi-calendar3"></i>
+            <span>แผนบำรุงรักษา</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Help Widget -->
+      <div class="sidebar-help-card">
+        <div class="sidebar-help-header">
+          <i class="bi bi-headset"></i>
+          <span>ต้องการความช่วยเหลือ?</span>
+        </div>
+        <p>สำนักงานอาคารฯ ตึก 13 ต่อ 1204</p>
+        <p class="text-secondary small">· 08:30-16:30 น.</p>
+      </div>
+
+      <!-- Logout -->
+      <div class="sidebar-logout">
+        <a href="login.html">
+          <i class="bi bi-box-arrow-left"></i>
+          <span>ออกจากระบบ</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="btn btn-sm btn-light d-lg-none me-2" id="mobileMenuToggle" type="button" aria-label="Toggle Navigation">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <div class="system-title-badge">
+            <i class="bi bi-buildings text-primary"></i>
+            <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-date d-none d-md-flex">
+            <span>28 ตุลาคม 2569</span>
+          </div>
+
+          <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
+            <i class="bi bi-bell"></i>
+            <span class="notification-dot"></span>
+          </button>
+
+          <!-- User dropdown -->
+          <div class="dropdown">
+            <div class="user-profile-menu dropdown-toggle" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar-initials" id="topbarUserAvatar">อน</div>
+              <div class="user-info-text d-none d-sm-block">
+                <div class="user-name" id="topbarUserName">อนันต์ วัฒนกุล</div>
+                <div class="user-role" id="topbarUserRole">ผู้ดูแลระบบ</div>
+              </div>
+              <i class="bi bi-chevron-down text-muted small ms-1"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" id="userProfileMenuOptions" aria-labelledby="userProfileDropdown" style="min-width: 250px;">
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-nav">
+          <a href="index.html">หน้าหลัก</a>
+          <span>/</span>
+          <span class="text-dark">แผนบำรุงรักษาเชิงป้องกัน</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">แผนบำรุงรักษาเชิงป้องกัน</h1>
+            <p class="page-subtitle">กำหนดรอบการดูแลครุภัณฑ์และติดตามงานบำรุงรักษาตามแผน</p>
+          </div>
+          <div>
+            <button class="btn-primary-custom" type="button" data-bs-toggle="modal" data-bs-target="#addPlanModal">
+              <i class="bi bi-plus-lg"></i>
+              <span>เพิ่มแผนบำรุงรักษา</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Month Navigation Bar Matching GUI-7 -->
+        <div class="month-nav-card">
+          <div class="month-stepper">
+            <button class="month-step-btn" title="เดือนก่อนหน้า"><i class="bi bi-chevron-left"></i></button>
+            <span id="currentPeriodLabel">ตุลาคม – พฤศจิกายน 2569</span>
+            <button class="month-step-btn" title="เดือนถัดไป"><i class="bi bi-chevron-right"></i></button>
+          </div>
+
+          <div class="status-counter-tags">
+            <span class="status-badge status-urgent">• เกินกำหนด 1</span>
+            <span class="status-badge status-pending">• ใกล้ครบกำหนด 2</span>
+          </div>
+
+          <button class="btn-secondary-custom" type="button" onclick="dummyExportData('preventive-maintenance-plans.xlsx')">
+            <i class="bi bi-download"></i>
+            <span>ส่งออกแผน</span>
+          </button>
+        </div>
+
+        <!-- Content Card -->
+        <div class="content-card">
+          <!-- Filter Toolbar Matching GUI-7 -->
+          <div class="table-toolbar">
+            <div class="search-input-wrap">
+              <i class="bi bi-search"></i>
+              <input type="text" id="planSearchInput" placeholder="ค้นหาแผน หรือครุภัณฑ์" onkeyup="renderPlansTable()">
+            </div>
+
+            <div class="filter-group">
+              <select class="filter-select" id="planStatusFilter" onchange="renderPlansTable()">
+                <option value="">สถานะทั้งหมด</option>
+                <option value="เกินกำหนด">เกินกำหนด</option>
+                <option value="ใกล้ครบกำหนด">ใกล้ครบกำหนด</option>
+                <option value="รอดำเนินการ">รอดำเนินการ</option>
+              </select>
+
+              <select class="filter-select" id="planTechFilter" onchange="renderPlansTable()">
+                <option value="">ผู้รับผิดชอบทั้งหมด</option>
+                <option value="สมชาย พูนทรัพย์">สมชาย พูนทรัพย์</option>
+                <option value="วิชัย แก้วดี">วิชัย แก้วดี</option>
+                <option value="กิตติ ศรีสุข">กิตติ ศรีสุข</option>
+              </select>
+
+              <select class="filter-select" id="planFrequencyFilter" onchange="renderPlansTable()">
+                <option value="">ประเภทรอบทั้งหมด</option>
+                <option value="ทุก 3 เดือน">ทุก 3 เดือน</option>
+                <option value="ทุก 6 เดือน">ทุก 6 เดือน</option>
+                <option value="ทุก 1 ปี">ทุก 1 ปี</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="custom-table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>แผน / ครุภัณฑ์</th>
+                  <th>รายการบำรุงรักษา</th>
+                  <th>รอบดูแล</th>
+                  <th>กำหนดดำเนินการ</th>
+                  <th>ผู้รับผิดชอบ</th>
+                  <th>สถานะ</th>
+                  <th class="text-center">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="plansTbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="table-pagination-footer">
+            <div class="pagination-info" id="planPaginationInfo">
+              แสดง 1-7 จาก 18 แผนงาน
+            </div>
+            <div class="pagination-controls">
+              <button class="page-btn" disabled><i class="bi bi-chevron-left"></i></button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notification Banner at bottom Matching GUI-7 -->
+        <div class="plan-notice-card">
+          <i class="bi bi-bell-fill text-primary fs-5"></i>
+          <div>
+            ระบบแจ้งเตือนทีมช่างอาคารและสิ่งแวดล้อม ตึก 13 ล่วงหน้า 3 วัน · งานที่เกินกำหนดจะแสดงในรายการจนกว่าจะบันทึกผลการบำรุงรักษา
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="app-footer mt-4">
+          <div>มหาวิทยาลัยรังสิต · สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</div>
+          <div>โทร. 02-997-2200 ต่อ 1204</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item">
+      <i class="bi bi-grid"></i>
+      <span>ภาพรวม</span>
+    </a>
+    <a href="new-request.html" class="mobile-nav-item">
+      <i class="bi bi-plus-circle"></i>
+      <span>แจ้งซ่อม</span>
+    </a>
+    <a href="track-repair.html" class="mobile-nav-item">
+      <i class="bi bi-journal-text"></i>
+      <span>ติดตามงาน</span>
+    </a>
+    <a href="maintenance-plans.html" class="mobile-nav-item active">
+      <i class="bi bi-calendar3"></i>
+      <span>แผนบำรุง</span>
+    </a>
+  </nav>
+
+  <!-- Add Plan Modal -->
+  <div class="modal fade" id="addPlanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold">เพิ่มแผนบำรุงรักษาเชิงป้องกัน</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="addPlanForm" onsubmit="handleAddPlanSubmit(event)">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label-custom">รหัสแผนงาน <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="modalPlanCode" placeholder="เช่น PM-6911-005" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">ครุภัณฑ์ <span class="text-danger">*</span></label>
+              <select class="form-select-custom" id="modalPlanEquipment" required>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">รายการบำรุงรักษา <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="modalPlanTask" placeholder="เช่น ตรวจสอบสายไฟและทำความสะอาด" required>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label class="form-label-custom">รอบดูแล</label>
+                <select class="form-select-custom" id="modalPlanFrequency">
+                  <option value="ทุก 1 เดือน">ทุก 1 เดือน</option>
+                  <option value="ทุก 3 เดือน" selected>ทุก 3 เดือน</option>
+                  <option value="ทุก 6 เดือน">ทุก 6 เดือน</option>
+                  <option value="ทุก 1 ปี">ทุก 1 ปี</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label-custom">กำหนดดำเนินการ</label>
+                <input type="text" class="form-control-custom" id="modalPlanDueDate" value="15 พ.ย. 2569">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">ช่างผู้รับผิดชอบ <span class="text-danger">*</span></label>
+              <select class="form-select-custom" id="modalPlanTechnician" required>
+                <option value="สมชาย พูนทรัพย์">สมชาย พูนทรัพย์</option>
+                <option value="วิชัย แก้วดี">วิชัย แก้วดี</option>
+                <option value="กิตติ ศรีสุข">กิตติ ศรีสุข</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+            <button type="submit" class="btn btn-sm btn-primary">บันทึกแผนงาน</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      populatePlanEquipmentModal();
+      renderPlansTable();
+    });
+
+    function populatePlanEquipmentModal() {
+      const eqList = DB.getEquipment();
+      const select = document.getElementById('modalPlanEquipment');
+      select.innerHTML = eqList.map(e => `
+        <option value="${e.asset_no} · ${e.equipment_name} (${e.location})">
+          ${e.asset_no} · ${e.equipment_name} (${e.location})
+        </option>
+      `).join('');
+    }
+
+    function renderPlansTable() {
+      const plans = DB.getPlans();
+      const tbody = document.getElementById('plansTbody');
+      const search = document.getElementById('planSearchInput').value.toLowerCase().trim();
+      const status = document.getElementById('planStatusFilter').value;
+      const tech = document.getElementById('planTechFilter').value;
+      const freq = document.getElementById('planFrequencyFilter').value;
+
+      const filtered = plans.filter(item => {
+        const matchesSearch = !search || 
+          item.code.toLowerCase().includes(search) || 
+          item.equipment_name.toLowerCase().includes(search) ||
+          item.task.toLowerCase().includes(search);
+        const matchesStatus = !status || item.status === status;
+        const matchesTech = !tech || item.technician_name === tech;
+        const matchesFreq = !freq || item.frequency === freq;
+        return matchesSearch && matchesStatus && matchesTech && matchesFreq;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบแผนบำรุงรักษาที่ค้นหา</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        let badgeClass = 'status-normal';
+        if (item.status === 'เกินกำหนด') badgeClass = 'status-urgent';
+        if (item.status === 'ใกล้ครบกำหนด') badgeClass = 'status-pending';
+        if (item.status === 'รอดำเนินการ') badgeClass = 'status-pending';
+
+        return `
+          <tr>
+            <td>
+              <div class="fw-semibold text-primary font-numeric">${item.code} · ${item.equipment_name}</div>
+              <div class="text-muted small">${item.location}</div>
+            </td>
+            <td class="fw-medium text-dark">${item.task}</td>
+            <td class="text-secondary">${item.frequency}</td>
+            <td class="text-secondary font-numeric">${item.next_due_date}</td>
+            <td class="fw-medium text-dark">${item.technician_name}</td>
+            <td><span class="status-badge ${badgeClass}">• ${item.status}</span></td>
+            <td class="text-center">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light border-0 py-0 px-2" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="showToast('บันทึกผลการบำรุงรักษา ${item.code}', 'success')"><i class="bi bi-check2-circle me-2 text-success"></i>บันทึกการทำบำรุง</a></li>
+                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="showToast('เลื่อนกำหนดดำเนินการ ${item.code}', 'info')"><i class="bi bi-calendar-event me-2 text-primary"></i>เลื่อนกำหนด</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('planPaginationInfo').textContent = `แสดง 1-${Math.min(filtered.length, 7)} จาก ${filtered.length} แผนงาน`;
+    }
+
+    function handleAddPlanSubmit(e) {
+      e.preventDefault();
+      const code = document.getElementById('modalPlanCode').value.trim();
+      const eqInfo = document.getElementById('modalPlanEquipment').value;
+      const task = document.getElementById('modalPlanTask').value.trim();
+      const freq = document.getElementById('modalPlanFrequency').value;
+      const dueDate = document.getElementById('modalPlanDueDate').value.trim();
+      const tech = document.getElementById('modalPlanTechnician').value;
+
+      DB.addPlan({
+        code: code,
+        equipment_name: eqInfo.split(' (')[0],
+        location: eqInfo.includes('(') ? eqInfo.split('(')[1].replace(')', '') : 'อาคาร ก',
+        task: task,
+        frequency: freq,
+        next_due_date: dueDate,
+        technician_name: tech,
+        status: "รอดำเนินการ"
+      });
+
+      const modalEl = document.getElementById('addPlanModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+
+      showToast(`เพิ่มแผนบำรุงรักษา ${code} เรียบร้อยแล้ว`, 'success');
+      renderPlansTable();
+    }
+  </script>
+</body>
+</html>
+

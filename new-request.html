@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>แจ้งซ่อมใหม่ - ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU Smart Repair)</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .info-card-box {
+      background-color: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      margin-bottom: 20px;
+    }
+    .info-card-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--text-main);
+      margin-bottom: 16px;
+    }
+    .user-info-row {
+      margin-bottom: 14px;
+    }
+    .user-info-row:last-child {
+      margin-bottom: 0;
+    }
+    .user-info-label {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+    .user-info-value {
+      font-weight: 600;
+      font-size: 14.5px;
+      color: var(--text-main);
+    }
+    .workflow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .workflow-step:last-child {
+      margin-bottom: 0;
+    }
+    .step-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: var(--primary-subtle);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 13px;
+      flex-shrink: 0;
+    }
+    .step-content-title {
+      font-weight: 600;
+      font-size: 13.5px;
+      color: var(--text-main);
+      margin-bottom: 2px;
+    }
+    .step-content-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .emergency-alert-box {
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #92400e;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="bi bi-tools"></i>
+        </div>
+        <div>
+          <div class="brand-title">ศูนย์บริการซ่อม</div>
+          <div class="brand-subtitle">มหาวิทยาลัยรังสิต (RSU)</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">พื้นที่ปฏิบัติงาน</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="index.html">
+            <i class="bi bi-grid-fill"></i>
+            <span>ภาพรวม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item active">
+          <a href="new-request.html">
+            <i class="bi bi-plus-circle"></i>
+            <span>แจ้งซ่อมใหม่</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="track-repair.html">
+            <i class="bi bi-journal-text"></i>
+            <span>ติดตามงานซ่อม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="assigned-tasks.html">
+            <i class="bi bi-tools"></i>
+            <span>งานที่ได้รับมอบหมาย</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-title">การจัดการระบบ</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="assets.html">
+            <i class="bi bi-boxes"></i>
+            <span>ทะเบียนครุภัณฑ์</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="maintenance-plans.html">
+            <i class="bi bi-calendar3"></i>
+            <span>แผนบำรุงรักษา</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Help Widget -->
+      <div class="sidebar-help-card">
+        <div class="sidebar-help-header">
+          <i class="bi bi-headset"></i>
+          <span>ต้องการความช่วยเหลือ?</span>
+        </div>
+        <p>สำนักงานอาคารฯ ตึก 13 ต่อ 1204</p>
+        <p class="text-secondary small">· 08:30-16:30 น.</p>
+      </div>
+
+      <!-- Logout -->
+      <div class="sidebar-logout">
+        <a href="login.html">
+          <i class="bi bi-box-arrow-left"></i>
+          <span>ออกจากระบบ</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="btn btn-sm btn-light d-lg-none me-2" id="mobileMenuToggle" type="button" aria-label="Toggle Navigation">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <div class="system-title-badge">
+            <i class="bi bi-buildings text-primary"></i>
+            <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-date d-none d-md-flex">
+            <span>28 ตุลาคม 2569</span>
+          </div>
+
+          <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
+            <i class="bi bi-bell"></i>
+            <span class="notification-dot"></span>
+          </button>
+
+          <!-- User dropdown -->
+          <div class="dropdown">
+            <div class="user-profile-menu dropdown-toggle" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar-initials" id="topbarUserAvatar">ศพ</div>
+              <div class="user-info-text d-none d-sm-block">
+                <div class="user-name" id="topbarUserName">ศิริพร ใจดี</div>
+                <div class="user-role" id="topbarUserRole">เจ้าหน้าที่</div>
+              </div>
+              <i class="bi bi-chevron-down text-muted small ms-1"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" id="userProfileMenuOptions" aria-labelledby="userProfileDropdown" style="min-width: 250px;">
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-nav">
+          <a href="index.html">หน้าหลัก</a>
+          <span>/</span>
+          <span class="text-dark">แจ้งซ่อมใหม่</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">แจ้งซ่อมใหม่</h1>
+            <p class="page-subtitle">ระบุครุภัณฑ์และรายละเอียดปัญหา เพื่อให้ทีมช่างรับเรื่องได้อย่างรวดเร็ว</p>
+          </div>
+        </div>
+
+        <!-- 2 Column Layout Matching GUI-3 -->
+        <div class="row g-4">
+          <!-- Left Column: Form -->
+          <div class="col-lg-8">
+            <div class="content-card">
+              <div class="p-4 border-bottom">
+                <h2 class="card-header-title" style="font-size: 17px;">รายละเอียดการแจ้งซ่อม</h2>
+                <div class="text-muted small mt-1">กรุณากรอกข้อมูลที่มีเครื่องหมาย * ให้ครบถ้วน</div>
+              </div>
+
+              <form id="newRepairForm" onsubmit="handleNewRepairSubmit(event)" class="p-4">
+                <!-- Row 1: Equipment & Location (Auto-fills location) -->
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label-custom">ครุภัณฑ์ <span class="text-danger">*</span></label>
+                    <select class="form-select-custom" id="selectEquipment" required onchange="handleEquipmentChange()">
+                      <option value="" disabled selected>เลือกครุภัณฑ์ที่พบปัญหา</option>
+                      <!-- Populated dynamically -->
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label-custom">สถานที่ <span class="text-danger">*</span></label>
+                    <select class="form-select-custom" id="inputLocation" required>
+                      <option value="ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 3 · ห้องประชุม 302">ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 3 · ห้องประชุม 302</option>
+                      <option value="ตึก 11 อาคารรัตนคุณากร · ชั้น 1 · สำนักทะเบียน">ตึก 11 อาคารรัตนคุณากร · ชั้น 1 · สำนักทะเบียน</option>
+                      <option value="ตึก 7 อาคารหอสมุด · ชั้น 2 · โถงทางเดินกลาง">ตึก 7 อาคารหอสมุด · ชั้น 2 · โถงทางเดินกลาง</option>
+                      <option value="ตึก 6 โรงอาหารกลาง · ชั้น 1 · ห้องน้ำ">ตึก 6 โรงอาหารกลาง · ชั้น 1 · ห้องน้ำ</option>
+                      <option value="ตึก 15 อาคาร Digital Multimedia Complex · ชั้น 4 · ห้องสตูดิโอ 401">ตึก 15 อาคาร Digital Multimedia Complex · ชั้น 4 · ห้องสตูดิโอ 401</option>
+                      <option value="ตึก 3 อาคารอุไรรัตน์ · ชั้น 2 · ห้องประชุม 201">ตึก 3 อาคารอุไรรัตน์ · ชั้น 2 · ห้องประชุม 201</option>
+                      <option value="ตึก 5 อาคารวิษณุรัตน์ · ชั้น 3 · ห้องทำงาน 305">ตึก 5 อาคารวิษณุรัตน์ · ชั้น 3 · ห้องทำงาน 305</option>
+                      <option value="ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 1 · ห้องรับรอง">ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 1 · ห้องรับรอง</option>
+                      <option value="ตึก 14 อาคารนันทนาการ · ชั้น 2 · Fitness Center">ตึก 14 อาคารนันทนาการ · ชั้น 2 · Fitness Center</option>
+                      <option value="ตึก 13 อาคารสำนักงานอาคารและสิ่งแวดล้อม · ชั้น 1">ตึก 13 อาคารสำนักงานอาคารและสิ่งแวดล้อม · ชั้น 1</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Row 2: Problem Description -->
+                <div class="mb-4">
+                  <label class="form-label-custom">รายละเอียดปัญหา <span class="text-danger">*</span></label>
+                  <textarea class="form-control-custom" id="problemDetail" rows="4" required placeholder="อธิบายอาการที่พบ เช่น เครื่องปรับอากาศไม่เย็น มีแต่ลมออก หรือน้ำรั่วซึม">เครื่องปรับอากาศไม่เย็น มีแต่ลมออก แม้ปรับอุณหภูมิลงแล้ว เริ่มพบปัญหาช่วงเช้าวันนี้ ห้องมีการประชุมเวลา 13:00 น.</textarea>
+                </div>
+
+                <!-- Row 3: Priority Selector Radio Cards -->
+                <div class="mb-4">
+                  <label class="form-label-custom d-block">ระดับความสำคัญ <span class="text-danger">*</span></label>
+                  <div class="priority-options-grid">
+                    <label class="priority-card-label" id="labelPriorityLow">
+                      <input type="radio" name="priorityOption" value="ต่ำ" onchange="updatePrioritySelection(this)">
+                      <div>
+                        <div class="priority-text-title">ต่ำ</div>
+                        <div class="priority-text-sub">ไม่กระทบการใช้งาน</div>
+                      </div>
+                    </label>
+
+                    <label class="priority-card-label" id="labelPriorityNormal">
+                      <input type="radio" name="priorityOption" value="ปกติ" onchange="updatePrioritySelection(this)">
+                      <div>
+                        <div class="priority-text-title">ปกติ</div>
+                        <div class="priority-text-sub">กระทบการใช้งานบางส่วน</div>
+                      </div>
+                    </label>
+
+                    <label class="priority-card-label selected" id="labelPriorityUrgent">
+                      <input type="radio" name="priorityOption" value="เร่งด่วน" checked onchange="updatePrioritySelection(this)">
+                      <div>
+                        <div class="priority-text-title">เร่งด่วน</div>
+                        <div class="priority-text-sub">กระทบการให้บริการ</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Row 4: File Upload Zone -->
+                <div class="mb-4">
+                  <label class="form-label-custom d-block">รูปภาพหรือเอกสารแนบ</label>
+                  <div class="upload-dropzone" id="uploadZone" onclick="document.getElementById('hiddenFileInput').click()">
+                    <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                    <div class="upload-title">เลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
+                    <div class="upload-hint">รูปภาพหรือเอกสารพีดีเอฟ · สูงสุด 5 ไฟล์ ไฟล์ละไม่เกิน 10 เมกะไบต์</div>
+                    <input type="file" id="hiddenFileInput" style="display: none;" onchange="handleFileSelected(this)">
+                  </div>
+
+                  <!-- Uploaded File Card (Matches GUI-3) -->
+                  <div class="uploaded-file-item" id="uploadedFileItem">
+                    <div class="file-item-info">
+                      <i class="bi bi-file-earmark-image"></i>
+                      <span class="file-item-name" id="uploadedFileName">แอร์ห้องประชุม302.jpg · 2.4 เมกะไบต์</span>
+                    </div>
+                    <div class="file-item-actions">
+                      <i class="bi bi-check-circle-fill file-success-icon"></i>
+                      <button type="button" class="file-remove-btn" onclick="removeAttachedFile()" title="ลบไฟล์">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Form Footer -->
+                <div class="d-flex align-items-center justify-content-between pt-3 border-top flex-wrap gap-2">
+                  <span class="text-muted small">ตรวจสอบข้อมูลก่อนส่งคำขอ</span>
+                  <div class="d-flex gap-2">
+                    <a href="index.html" class="btn-secondary-custom text-decoration-none">
+                      ยกเลิก
+                    </a>
+                    <button type="submit" class="btn-primary-custom border-0">
+                      <i class="bi bi-send-fill"></i>
+                      <span>ส่งคำขอแจ้งซ่อม</span>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Right Column: Requester Info & Workflow Guide -->
+          <div class="col-lg-4">
+            <!-- Requester Details -->
+            <div class="info-card-box">
+              <h3 class="info-card-title">ข้อมูลผู้แจ้ง</h3>
+              <div class="user-info-row">
+                <div class="user-info-label">ชื่อผู้แจ้ง</div>
+                <div class="user-info-value" id="cardRequesterName">ศิริพร ใจดี</div>
+              </div>
+              <div class="user-info-row">
+                <div class="user-info-label">หน่วยงาน</div>
+                <div class="user-info-value" id="cardRequesterDept">สำนักปลัดเทศบาล</div>
+              </div>
+              <div class="user-info-row">
+                <div class="user-info-label">หมายเลขติดต่อ</div>
+                <div class="user-info-value" id="cardRequesterPhone">ต่อ 1302</div>
+              </div>
+            </div>
+
+            <!-- Workflow Steps -->
+            <div class="info-card-box">
+              <h3 class="info-card-title">หลังจากส่งคำขอ</h3>
+              
+              <div class="workflow-step">
+                <div class="step-circle">1</div>
+                <div>
+                  <div class="step-content-title">รับเลขที่ใบแจ้งซ่อม</div>
+                  <div class="step-content-sub">ใช้สำหรับติดตามความคืบหน้า</div>
+                </div>
+              </div>
+
+              <div class="workflow-step">
+                <div class="step-circle">2</div>
+                <div>
+                  <div class="step-content-title">เจ้าหน้าที่รับเรื่อง</div>
+                  <div class="step-content-sub">ตรวจสอบและมอบหมายช่าง</div>
+                </div>
+              </div>
+
+              <div class="workflow-step">
+                <div class="step-circle">3</div>
+                <div>
+                  <div class="step-content-title">ติดตามและตรวจรับ</div>
+                  <div class="step-content-sub">รับการแจ้งเตือนเมื่อซ่อมเสร็จ</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Emergency Warning Box -->
+            <div class="emergency-alert-box">
+              <i class="bi bi-telephone-fill fs-5"></i>
+              <div>
+                <strong>กรณีฉุกเฉินหรือมีอันตราย</strong><br>
+                โทรแจ้งสำนักงานอาคารฯ ตึก 13 ต่อ 1204 ทันที
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="app-footer mt-4">
+          <div>มหาวิทยาลัยรังสิต · สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</div>
+          <div>โทร. 02-997-2200 ต่อ 1204</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item">
+      <i class="bi bi-grid"></i>
+      <span>ภาพรวม</span>
+    </a>
+    <a href="new-request.html" class="mobile-nav-item active">
+      <i class="bi bi-plus-circle-fill"></i>
+      <span>แจ้งซ่อม</span>
+    </a>
+    <a href="track-repair.html" class="mobile-nav-item">
+      <i class="bi bi-journal-text"></i>
+      <span>ติดตามงาน</span>
+    </a>
+    <a href="assigned-tasks.html" class="mobile-nav-item">
+      <i class="bi bi-tools"></i>
+      <span>งานของฉัน</span>
+    </a>
+  </nav>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      populateEquipmentOptions();
+      populateRequesterCard();
+      initDragAndDrop();
+    });
+
+    function initDragAndDrop() {
+      const dropzone = document.getElementById('uploadZone');
+      if (!dropzone) return;
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+          const file = files[0];
+          const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+          document.getElementById('uploadedFileName').textContent = `${file.name} · ${sizeMb} เมกะไบต์`;
+          document.getElementById('uploadedFileItem').style.display = 'flex';
+        }
+      }, false);
+    }
+
+    function populateRequesterCard() {
+      const user = DB.getCurrentUser();
+      if (user) {
+        document.getElementById('cardRequesterName').textContent = user.full_name;
+        document.getElementById('cardRequesterDept').textContent = user.department;
+        document.getElementById('cardRequesterPhone').textContent = user.phone;
+      }
+    }
+
+    function populateEquipmentOptions() {
+      const equipments = DB.getEquipment();
+      const select = document.getElementById('selectEquipment');
+
+      select.innerHTML = `<option value="" disabled>เลือกครุภัณฑ์ที่พบปัญหา</option>` + 
+        equipments.map((eq, idx) => `
+          <option value="${eq.equipment_id}" ${eq.asset_no === 'AC-003' ? 'selected' : ''}>
+            ${eq.asset_no} · ${eq.equipment_name}
+          </option>
+        `).join('');
+
+      handleEquipmentChange();
+    }
+
+    // Auto-fill Location when Equipment is selected
+    function handleEquipmentChange() {
+      const select = document.getElementById('selectEquipment');
+      const eqId = Number(select.value);
+      const equipments = DB.getEquipment();
+      const selectedEq = equipments.find(e => e.equipment_id === eqId);
+
+      if (selectedEq) {
+        const locationSelect = document.getElementById('inputLocation');
+        // Match option or add if not present
+        let found = false;
+        for (let opt of locationSelect.options) {
+          if (opt.value === selectedEq.location_full) {
+            opt.selected = true;
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const newOpt = new Option(selectedEq.location_full, selectedEq.location_full, true, true);
+          locationSelect.add(newOpt);
+        }
+      }
+    }
+
+    function updatePrioritySelection(radio) {
+      document.querySelectorAll('.priority-card-label').forEach(label => {
+        label.classList.remove('selected');
+      });
+      radio.closest('.priority-card-label').classList.add('selected');
+    }
+
+    function handleFileSelected(input) {
+      if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+        document.getElementById('uploadedFileName').textContent = `${file.name} · ${sizeMb} เมกะไบต์`;
+        document.getElementById('uploadedFileItem').style.display = 'flex';
+      }
+    }
+
+    function removeAttachedFile() {
+      document.getElementById('hiddenFileInput').value = '';
+      document.getElementById('uploadedFileItem').style.display = 'none';
+    }
+
+    function handleNewRepairSubmit(e) {
+      e.preventDefault();
+      const eqSelect = document.getElementById('selectEquipment');
+      const eqId = Number(eqSelect.value);
+      const equipments = DB.getEquipment();
+      const eq = equipments.find(item => item.equipment_id === eqId);
+
+      const locationVal = document.getElementById('inputLocation').value;
+      const problemVal = document.getElementById('problemDetail').value.trim();
+      const priorityVal = document.querySelector('input[name="priorityOption"]:checked').value;
+      const currentUser = DB.getCurrentUser();
+
+      const newRepair = DB.addRepair({
+        requester_id: currentUser ? currentUser.user_id : 1,
+        requester_name: currentUser ? currentUser.full_name : "ศิริพร ใจดี",
+        equipment_id: eqId,
+        problem_title: eq ? eq.equipment_name.split(' ')[0] + ' มีปัญหา' : problemVal.substring(0, 25),
+        problem_detail: problemVal,
+        location_text: locationVal.split(' · ').pop(),
+        location_detail: locationVal,
+        priority: priorityVal,
+        status: "รอดำเนินการ",
+        image: "แอร์ห้องประชุม302.jpg",
+        image_size: "2.4 เมกะไบต์"
+      });
+
+      showToast(`ส่งคำขอแจ้งซ่อมสำเร็จ! รหัสใบแจ้งซ่อม: ${newRepair.ticket_no}`, 'success');
+      
+      setTimeout(() => {
+        window.location.href = `track-repair.html?ticket=${newRepair.ticket_no}`;
+      }, 1200);
+    }
+  </script>
+</body>
+</html>

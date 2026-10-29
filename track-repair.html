@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ติดตามงานซ่อม - ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU Smart Repair)</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .track-top-banner {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .ticket-badge-box {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .ticket-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background-color: var(--primary-subtle);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+    .detail-label {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+    .detail-value {
+      font-weight: 600;
+      font-size: 14.5px;
+      color: var(--text-main);
+    }
+    .attachment-preview-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      background-color: #f8fafc;
+      margin-top: 14px;
+    }
+    .technician-contact-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      background-color: white;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      margin-top: 24px;
+    }
+    .eta-notice-box {
+      background-color: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .eta-notice-box i {
+      color: var(--primary);
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .ticket-selector-bar {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      padding: 10px 16px;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="bi bi-tools"></i>
+        </div>
+        <div>
+          <div class="brand-title">ศูนย์บริการซ่อม</div>
+          <div class="brand-subtitle">มหาวิทยาลัยรังสิต (RSU)</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">พื้นที่ปฏิบัติงาน</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="index.html">
+            <i class="bi bi-grid-fill"></i>
+            <span>ภาพรวม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="new-request.html">
+            <i class="bi bi-plus-circle"></i>
+            <span>แจ้งซ่อมใหม่</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item active">
+          <a href="track-repair.html">
+            <i class="bi bi-journal-text"></i>
+            <span>ติดตามงานซ่อม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="assigned-tasks.html">
+            <i class="bi bi-tools"></i>
+            <span>งานที่ได้รับมอบหมาย</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-title">การจัดการระบบ</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="assets.html">
+            <i class="bi bi-boxes"></i>
+            <span>ทะเบียนครุภัณฑ์</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="maintenance-plans.html">
+            <i class="bi bi-calendar3"></i>
+            <span>แผนบำรุงรักษา</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Help Widget -->
+      <div class="sidebar-help-card">
+        <div class="sidebar-help-header">
+          <i class="bi bi-headset"></i>
+          <span>ต้องการความช่วยเหลือ?</span>
+        </div>
+        <p>สำนักงานอาคารฯ ตึก 13 ต่อ 1204</p>
+        <p class="text-secondary small">· 08:30-16:30 น.</p>
+      </div>
+
+      <!-- Logout -->
+      <div class="sidebar-logout">
+        <a href="login.html">
+          <i class="bi bi-box-arrow-left"></i>
+          <span>ออกจากระบบ</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="btn btn-sm btn-light d-lg-none me-2" id="mobileMenuToggle" type="button" aria-label="Toggle Navigation">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <div class="system-title-badge">
+            <i class="bi bi-buildings text-primary"></i>
+            <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-date d-none d-md-flex">
+            <span>28 ตุลาคม 2569</span>
+          </div>
+
+          <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
+            <i class="bi bi-bell"></i>
+            <span class="notification-dot"></span>
+          </button>
+
+          <!-- User dropdown -->
+          <div class="dropdown">
+            <div class="user-profile-menu dropdown-toggle" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar-initials" id="topbarUserAvatar">ศพ</div>
+              <div class="user-info-text d-none d-sm-block">
+                <div class="user-name" id="topbarUserName">ศิริพร ใจดี</div>
+                <div class="user-role" id="topbarUserRole">เจ้าหน้าที่</div>
+              </div>
+              <i class="bi bi-chevron-down text-muted small ms-1"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" id="userProfileMenuOptions" aria-labelledby="userProfileDropdown" style="min-width: 250px;">
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-container">
+        <!-- Top Action Bar -->
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <nav class="breadcrumb-nav mb-0">
+            <a href="index.html">หน้าหลัก</a>
+            <span>/</span>
+            <span class="text-dark">ติดตามงานซ่อม</span>
+          </nav>
+
+          <a href="index.html" class="btn-secondary-custom text-decoration-none">
+            <i class="bi bi-arrow-left"></i>
+            <span>กลับไปรายการ</span>
+          </a>
+        </div>
+
+        <!-- Page Header -->
+        <div class="page-header mb-3">
+          <div>
+            <h1 class="page-title">ติดตามงานซ่อม</h1>
+            <p class="page-subtitle">รายละเอียดใบแจ้งซ่อมและความคืบหน้าการดำเนินงาน</p>
+          </div>
+        </div>
+
+        <!-- Ticket Selector Dropdown for convenience -->
+        <div class="ticket-selector-bar">
+          <span class="text-muted small fw-medium">เลือกใบแจ้งซ่อมที่จะดู:</span>
+          <select id="ticketSelector" class="form-select form-select-sm" style="max-width: 320px;" onchange="switchTrackedTicket(this.value)">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+
+        <!-- Top Ticket Banner (Matching GUI-4) -->
+        <div class="track-top-banner">
+          <div class="ticket-badge-box">
+            <div class="ticket-icon">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div>
+              <h2 class="fw-bold font-numeric text-dark mb-1" id="detailTicketNo" style="font-size: 22px;">RQ-691028-014</h2>
+              <div class="text-muted small" id="detailRequestDate">แจ้งเมื่อ 28 ตุลาคม 2569 เวลา 08:45 น.</div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center gap-2" id="detailBadges">
+            <span class="status-badge status-urgent" id="detailPriorityBadge">• เร่งด่วน</span>
+            <span class="status-badge status-in-progress" id="detailStatusBadge">• กำลังดำเนินการ</span>
+          </div>
+        </div>
+
+        <!-- Two Column Content Grid Matching GUI-4 -->
+        <div class="row g-4">
+          <!-- Left Column (8 cols): Problem Detail & Assignee -->
+          <div class="col-lg-7 col-xl-8">
+            <!-- Request Detail Card -->
+            <div class="content-card p-4">
+              <h3 class="fw-bold text-dark mb-3" id="detailProblemTitle" style="font-size: 19px;">เครื่องปรับอากาศไม่เย็น</h3>
+              
+              <div class="detail-grid">
+                <div>
+                  <div class="detail-label">ครุภัณฑ์</div>
+                  <div class="detail-value" id="detailEquipmentName">AC-003 · เครื่องปรับอากาศ</div>
+                </div>
+                <div>
+                  <div class="detail-label">สถานที่</div>
+                  <div class="detail-value" id="detailLocation">อาคาร ก · ชั้น 3 · ห้องประชุม 302</div>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <div class="detail-label">รายละเอียดปัญหา</div>
+                <div class="p-3 bg-light rounded text-secondary" style="font-size: 14px; line-height: 1.6;" id="detailProblemDesc">
+                  เครื่องปรับอากาศไม่เย็น มีแต่ลมออก แม้ปรับอุณหภูมิลงแล้ว เริ่มพบปัญหาช่วงเช้าวันนี้ ห้องมีการประชุมเวลา 13:00 น.
+                </div>
+              </div>
+
+              <div class="detail-grid">
+                <div>
+                  <div class="detail-label">ผู้แจ้ง / หน่วยงาน</div>
+                  <div class="detail-value" id="detailRequester">ศิริพร ใจดี · สำนักปลัดเทศบาล</div>
+                </div>
+                <div>
+                  <div class="detail-label">หมายเลขติดต่อ</div>
+                  <div class="detail-value font-numeric" id="detailRequesterPhone">ต่อ 1302</div>
+                </div>
+              </div>
+
+              <!-- Attachment Box -->
+              <div class="attachment-preview-card" id="detailAttachmentBox">
+                <div class="d-flex align-items-center gap-3">
+                  <div class="text-primary fs-3">
+                    <i class="bi bi-file-earmark-image"></i>
+                  </div>
+                  <div>
+                    <div class="fw-semibold text-dark" id="attachmentNameText">แอร์ห้องประชุม302.jpg</div>
+                    <div class="text-muted small" id="attachmentSizeText">รูปภาพแนบ · 2.4 เมกะไบต์</div>
+                  </div>
+                </div>
+                <button class="btn btn-sm btn-outline-primary" onclick="viewAttachmentModal()">
+                  ดูไฟล์แนบ
+                </button>
+              </div>
+            </div>
+
+            <!-- Technician Card (GUI-4 & GUI-8) -->
+            <div class="technician-contact-card">
+              <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar-initials" id="technicianAvatar" style="width: 44px; height: 44px; font-size: 16px;">สช</div>
+                <div>
+                  <div class="user-info-label">ผู้รับผิดชอบงาน</div>
+                  <div class="fw-bold text-dark" style="font-size: 16px;" id="technicianName">สมชาย พูนทรัพย์</div>
+                  <div class="text-muted small" id="technicianTitle">ช่างระบบปรับอากาศ · ต่อ 1206</div>
+                </div>
+              </div>
+              <button class="btn-secondary-custom" onclick="callTechnicianModal()">
+                <i class="bi bi-telephone text-primary"></i>
+                <span>ติดต่อช่าง</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Column (4 cols): Progress Timeline -->
+          <div class="col-lg-5 col-xl-4">
+            <div class="content-card p-4">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <h3 class="fw-bold text-dark mb-0" style="font-size: 16px;">ความคืบหน้าการซ่อม</h3>
+              </div>
+              <div class="text-muted small mb-3" id="timelineLastUpdate">อัปเดตล่าสุด 28 ต.ค. 2569 เวลา 10:15 น.</div>
+
+              <!-- Timeline Component Matching GUI-4 & GUI-8 -->
+              <div class="timeline-container" id="timelineList">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- ETA Notice Card -->
+            <div class="eta-notice-box" id="etaNoticeCard">
+              <i class="bi bi-calendar-check"></i>
+              <div>
+                <div class="fw-bold text-primary mb-1" id="etaTimeText">คาดว่าจะแล้วเสร็จ 28 ต.ค. 2569 เวลา 12:00 น.</div>
+                <div class="text-muted small">ระบบจะแจ้งเตือนเมื่อพร้อมให้ตรวจรับงาน</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="app-footer mt-4">
+          <div>มหาวิทยาลัยรังสิต · สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</div>
+          <div>โทร. 02-997-2200 ต่อ 1204</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item">
+      <i class="bi bi-grid"></i>
+      <span>ภาพรวม</span>
+    </a>
+    <a href="new-request.html" class="mobile-nav-item">
+      <i class="bi bi-plus-circle"></i>
+      <span>แจ้งซ่อม</span>
+    </a>
+    <a href="track-repair.html" class="mobile-nav-item active">
+      <i class="bi bi-journal-text"></i>
+      <span>ติดตามงาน</span>
+    </a>
+    <a href="assigned-tasks.html" class="mobile-nav-item">
+      <i class="bi bi-tools"></i>
+      <span>งานของฉัน</span>
+    </a>
+  </nav>
+
+  <!-- Attachment Modal -->
+  <div class="modal fade" id="attachmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6">ไฟล์แนบ: แอร์ห้องประชุม302.jpg</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center p-4">
+          <div class="p-5 bg-light rounded d-flex flex-column align-items-center justify-content-center">
+            <i class="bi bi-image text-primary" style="font-size: 64px;"></i>
+            <p class="mt-3 text-secondary mb-1">ภาพถ่ายหน้างาน: เครื่องปรับอากาศห้องประชุม 302</p>
+            <span class="badge bg-secondary">ไฟล์ JPG · 2.4 MB</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      populateTicketDropdown();
+      loadTrackedRepair();
+    });
+
+    function populateTicketDropdown() {
+      const repairs = DB.getRepairs();
+      const select = document.getElementById('ticketSelector');
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentTicket = urlParams.get('ticket') || "RQ-691028-014";
+
+      select.innerHTML = repairs.map(r => `
+        <option value="${r.ticket_no}" ${r.ticket_no === currentTicket ? 'selected' : ''}>
+          ${r.ticket_no} - ${r.problem_title} (${r.status})
+        </option>
+      `).join('');
+    }
+
+    function switchTrackedTicket(ticketNo) {
+      window.location.href = `track-repair.html?ticket=${ticketNo}`;
+    }
+
+    function loadTrackedRepair() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketNo = urlParams.get('ticket') || "RQ-691028-014";
+      const repairs = DB.getRepairs();
+      const users = DB.getUsers();
+      const equipments = DB.getEquipment();
+
+      const repair = repairs.find(r => r.ticket_no === ticketNo) || repairs[0];
+      if (!repair) return;
+
+      document.getElementById('detailTicketNo').textContent = repair.ticket_no;
+      document.getElementById('detailRequestDate').textContent = repair.request_datetime || `แจ้งเมื่อ ${repair.request_date}`;
+      document.getElementById('detailProblemTitle').textContent = repair.problem_title;
+      document.getElementById('detailProblemDesc').textContent = repair.problem_detail;
+      document.getElementById('detailLocation').textContent = repair.location_detail || repair.location_text;
+
+      // Badges
+      const pBadge = document.getElementById('detailPriorityBadge');
+      pBadge.className = `status-badge ${repair.priority === 'เร่งด่วน' ? 'status-urgent' : repair.priority === 'ต่ำ' ? 'status-low' : 'status-normal'}`;
+      pBadge.textContent = `• ${repair.priority}`;
+
+      const sBadge = document.getElementById('detailStatusBadge');
+      sBadge.className = `status-badge ${repair.status === 'กำลังดำเนินการ' ? 'status-in-progress' : repair.status === 'เสร็จสิ้น' ? 'status-completed' : 'status-pending'}`;
+      sBadge.textContent = `• ${repair.status}`;
+
+      // Equipment
+      const eq = equipments.find(e => e.equipment_id === repair.equipment_id);
+      if (eq) {
+        document.getElementById('detailEquipmentName').textContent = `${eq.asset_no} · ${eq.equipment_name}`;
+      }
+
+      // Requester
+      const requester = users.find(u => u.user_id === repair.requester_id) || { full_name: "ศิริพร ใจดี", department: "สำนักปลัดเทศบาล", phone: "ต่อ 1302" };
+      document.getElementById('detailRequester').textContent = `${requester.full_name} · ${requester.department}`;
+      document.getElementById('detailRequesterPhone').textContent = requester.phone;
+
+      // Assignee (Technician)
+      const tech = users.find(u => u.user_id === repair.technician_id);
+      if (tech) {
+        document.getElementById('technicianName').textContent = tech.full_name;
+        document.getElementById('technicianAvatar').textContent = tech.avatar || 'ชท';
+        document.getElementById('technicianTitle').textContent = `${tech.title_role || 'ช่างเทคนิค'} · ${tech.phone}`;
+      } else {
+        document.getElementById('technicianName').textContent = "ยังไม่ได้มอบหมาย";
+        document.getElementById('technicianAvatar').textContent = "รอ";
+        document.getElementById('technicianTitle').textContent = "ฝ่ายอาคารและสถานที่ รอจัดสรรช่าง";
+      }
+
+      // ETA
+      if (repair.expected_date && repair.expected_time) {
+        document.getElementById('etaTimeText').textContent = `คาดว่าจะแล้วเสร็จ ${repair.expected_date} เวลา ${repair.expected_time}`;
+        document.getElementById('etaNoticeCard').style.display = 'flex';
+      } else {
+        document.getElementById('etaNoticeCard').style.display = 'none';
+      }
+
+      // Attachment
+      if (repair.image) {
+        document.getElementById('attachmentNameText').textContent = repair.image;
+        document.getElementById('attachmentSizeText').textContent = `รูปภาพแนบ · ${repair.image_size || '2.4 เมกะไบต์'}`;
+        document.getElementById('detailAttachmentBox').style.display = 'flex';
+      } else {
+        document.getElementById('detailAttachmentBox').style.display = 'none';
+      }
+
+      // Timeline Rendering
+      renderTimeline(repair.timeline || []);
+    }
+
+    function renderTimeline(timeline) {
+      const container = document.getElementById('timelineList');
+      if (!timeline || timeline.length === 0) {
+        container.innerHTML = `<div class="text-muted small">ไม่มีประวัติความคืบหน้า</div>`;
+        return;
+      }
+
+      container.innerHTML = timeline.map(item => `
+        <div class="timeline-item ${item.status}">
+          <div class="timeline-line"></div>
+          <div class="timeline-icon">
+            ${item.status === 'done' ? '<i class="bi bi-check"></i>' : ''}
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-title">${item.title}</div>
+            <div class="timeline-time">${item.user_info}</div>
+            ${item.note ? `<div class="timeline-desc text-secondary">${item.note}</div>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function viewAttachmentModal() {
+      const modal = new bootstrap.Modal(document.getElementById('attachmentModal'));
+      modal.show();
+    }
+
+    function callTechnicianModal() {
+      const techName = document.getElementById('technicianName').textContent;
+      const techPhone = document.getElementById('technicianTitle').textContent;
+      showToast(`ติดต่อสายด่วน: ${techName} (${techPhone})`, 'info');
+    }
+  </script>
+</body>
+</html>
+

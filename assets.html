@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ทะเบียนครุภัณฑ์ - ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU Smart Repair)</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="appSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <i class="bi bi-tools"></i>
+        </div>
+        <div>
+          <div class="brand-title">ศูนย์บริการซ่อม</div>
+          <div class="brand-subtitle">มหาวิทยาลัยรังสิต (RSU)</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">พื้นที่ปฏิบัติงาน</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="index.html">
+            <i class="bi bi-grid-fill"></i>
+            <span>ภาพรวม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="new-request.html">
+            <i class="bi bi-plus-circle"></i>
+            <span>แจ้งซ่อมใหม่</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="track-repair.html">
+            <i class="bi bi-journal-text"></i>
+            <span>ติดตามงานซ่อม</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="assigned-tasks.html">
+            <i class="bi bi-tools"></i>
+            <span>งานที่ได้รับมอบหมาย</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-section-title">การจัดการระบบ</div>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item active">
+          <a href="assets.html">
+            <i class="bi bi-boxes"></i>
+            <span>ทะเบียนครุภัณฑ์</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="maintenance-plans.html">
+            <i class="bi bi-calendar3"></i>
+            <span>แผนบำรุงรักษา</span>
+          </a>
+        </li>
+      </ul>
+
+      <!-- Help Widget -->
+      <div class="sidebar-help-card">
+        <div class="sidebar-help-header">
+          <i class="bi bi-headset"></i>
+          <span>ต้องการความช่วยเหลือ?</span>
+        </div>
+        <p>สำนักงานอาคารฯ ตึก 13 ต่อ 1204</p>
+        <p class="text-secondary small">· 08:30-16:30 น.</p>
+      </div>
+
+      <!-- Logout -->
+      <div class="sidebar-logout">
+        <a href="login.html">
+          <i class="bi bi-box-arrow-left"></i>
+          <span>ออกจากระบบ</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="app-main">
+      <!-- Topbar Header -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="btn btn-sm btn-light d-lg-none me-2" id="mobileMenuToggle" type="button" aria-label="Toggle Navigation">
+            <i class="bi bi-list fs-4"></i>
+          </button>
+          <div class="system-title-badge">
+            <i class="bi bi-buildings text-primary"></i>
+            <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="topbar-date d-none d-md-flex">
+            <span>28 ตุลาคม 2569</span>
+          </div>
+
+          <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
+            <i class="bi bi-bell"></i>
+            <span class="notification-dot"></span>
+          </button>
+
+          <!-- User dropdown -->
+          <div class="dropdown">
+            <div class="user-profile-menu dropdown-toggle" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="user-avatar-initials" id="topbarUserAvatar">อน</div>
+              <div class="user-info-text d-none d-sm-block">
+                <div class="user-name" id="topbarUserName">อนันต์ วัฒนกุล</div>
+                <div class="user-role" id="topbarUserRole">ผู้ดูแลระบบ</div>
+              </div>
+              <i class="bi bi-chevron-down text-muted small ms-1"></i>
+            </div>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm" id="userProfileMenuOptions" aria-labelledby="userProfileDropdown" style="min-width: 250px;">
+            </ul>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <main class="page-container">
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb-nav">
+          <a href="index.html">หน้าหลัก</a>
+          <span>/</span>
+          <span class="text-dark">ทะเบียนครุภัณฑ์</span>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+          <div>
+            <h1 class="page-title">ทะเบียนครุภัณฑ์</h1>
+            <p class="page-subtitle">จัดการข้อมูลครุภัณฑ์ สถานที่ติดตั้ง และประวัติการซ่อมบำรุง</p>
+          </div>
+          <div>
+            <button class="btn-primary-custom" type="button" data-bs-toggle="modal" data-bs-target="#addEquipmentModal">
+              <i class="bi bi-plus-lg"></i>
+              <span>เพิ่มครุภัณฑ์</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Summary Stat Subtitle Bar Matching GUI-6 -->
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 text-secondary" style="font-size: 13.5px;">
+          <div>
+            <strong class="text-dark">• ครุภัณฑ์ทั้งหมด 248 รายการ</strong>
+            <span class="ms-3 text-muted">ใช้งานปกติ 232 · อยู่ระหว่างซ่อม 8 · รอตรวจสอบ 8</span>
+          </div>
+          <div class="text-muted small">
+            อัปเดตล่าสุด 28 ต.ค. 2569
+          </div>
+        </div>
+
+        <!-- Content Card -->
+        <div class="content-card">
+          <!-- Filter Toolbar Matching GUI-6 -->
+          <div class="table-toolbar">
+            <div class="search-input-wrap">
+              <i class="bi bi-search"></i>
+              <input type="text" id="assetSearchInput" placeholder="ค้นหารหัส หรือชื่อครุภัณฑ์" onkeyup="renderEquipmentTable()">
+            </div>
+
+            <div class="filter-group">
+              <select class="filter-select" id="assetCategoryFilter" onchange="renderEquipmentTable()">
+                <option value="">ประเภททั้งหมด</option>
+                <option value="ระบบปรับอากาศ">ระบบปรับอากาศ</option>
+                <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
+                <option value="ระบบไฟฟ้า">ระบบไฟฟ้า</option>
+                <option value="ระบบประปา">ระบบประปา</option>
+                <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
+                <option value="อาคารและสถานที่">อาคารและสถานที่</option>
+              </select>
+
+              <select class="filter-select" id="assetStatusFilter" onchange="renderEquipmentTable()">
+                <option value="">สถานะทั้งหมด</option>
+                <option value="ใช้งานปกติ">ใช้งานปกติ</option>
+                <option value="อยู่ระหว่างซ่อม">อยู่ระหว่างซ่อม</option>
+                <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+              </select>
+
+              <select class="filter-select" id="assetBuildingFilter" onchange="renderEquipmentTable()">
+                <option value="">อาคารทั้งหมด</option>
+                <option value="ตึก 1 อาคารอาทิตย์อุไรรัตน์">ตึก 1 อาทิตย์อุไรรัตน์</option>
+                <option value="ตึก 3 อาคารอุไรรัตน์">ตึก 3 อุไรรัตน์</option>
+                <option value="ตึก 5 อาคารวิษณุรัตน์">ตึก 5 วิษณุรัตน์</option>
+                <option value="ตึก 6 โรงอาหารกลาง">ตึก 6 โรงอาหารกลาง</option>
+                <option value="ตึก 7 อาคารหอสมุด">ตึก 7 หอสมุด</option>
+                <option value="ตึก 11 อาคารรัตนคุณากร">ตึก 11 รัตนคุณากร</option>
+                <option value="ตึก 13 อาคารสำนักงานอาคารและสิ่งแวดล้อม">ตึก 13 สำนักงานอาคารฯ</option>
+                <option value="ตึก 14 อาคารนันทนาการ">ตึก 14 นันทนาการ</option>
+                <option value="ตึก 15 อาคาร Digital Multimedia Complex">ตึก 15 Digital Multimedia</option>
+              </select>
+
+              <button class="btn-secondary-custom" type="button" onclick="dummyExportData('asset-registry-2569.xlsx')">
+                <i class="bi bi-download"></i>
+                <span class="d-none d-sm-inline">ส่งออก</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table -->
+          <div class="custom-table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>รหัสครุภัณฑ์</th>
+                  <th>ชื่อครุภัณฑ์</th>
+                  <th>ประเภท</th>
+                  <th>สถานที่ติดตั้ง</th>
+                  <th>สถานะ</th>
+                  <th>บำรุงรักษาครั้งถัดไป</th>
+                  <th class="text-center">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="equipmentTbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <div class="table-pagination-footer">
+            <div class="pagination-info" id="assetPaginationInfo">
+              แสดง 1-7 จาก 248 รายการ
+            </div>
+            <div class="pagination-controls">
+              <button class="page-btn" disabled><i class="bi bi-chevron-left"></i></button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn"><i class="bi bi-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Note -->
+        <div class="text-muted small mt-2 d-flex align-items-center gap-1">
+          <i class="bi bi-info-circle"></i>
+          <span>เลือกรหัสครุภัณฑ์เพื่อดูรายละเอียด ประวัติแจ้งซ่อม และแผนบำรุงรักษาที่เกี่ยวข้อง</span>
+        </div>
+
+        <!-- Footer -->
+        <div class="app-footer mt-4">
+          <div>มหาวิทยาลัยรังสิต · สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</div>
+          <div>โทร. 02-997-2200 ต่อ 1204</div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Navigation Bar -->
+  <nav class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-item">
+      <i class="bi bi-grid"></i>
+      <span>ภาพรวม</span>
+    </a>
+    <a href="new-request.html" class="mobile-nav-item">
+      <i class="bi bi-plus-circle"></i>
+      <span>แจ้งซ่อม</span>
+    </a>
+    <a href="track-repair.html" class="mobile-nav-item">
+      <i class="bi bi-journal-text"></i>
+      <span>ติดตามงาน</span>
+    </a>
+    <a href="assets.html" class="mobile-nav-item active">
+      <i class="bi bi-boxes"></i>
+      <span>ครุภัณฑ์</span>
+    </a>
+  </nav>
+
+  <!-- Add Equipment Modal -->
+  <div class="modal fade" id="addEquipmentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold">เพิ่มครุภัณฑ์ใหม่</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="addEquipmentForm" onsubmit="handleAddEquipmentSubmit(event)">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label-custom">รหัสครุภัณฑ์ <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="modalAssetNo" placeholder="เช่น AC-005, PC-046" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">ชื่อครุภัณฑ์ <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="modalAssetName" placeholder="เช่น เครื่องปรับอากาศ 24,000 บีทียู" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">ประเภท <span class="text-danger">*</span></label>
+              <select class="form-select-custom" id="modalAssetCategory" required>
+                <option value="ระบบปรับอากาศ">ระบบปรับอากาศ</option>
+                <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
+                <option value="ระบบไฟฟ้า">ระบบไฟฟ้า</option>
+                <option value="ระบบประปา">ระบบประปา</option>
+                <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
+                <option value="อาคารและสถานที่">อาคารและสถานที่</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">สถานที่ติดตั้ง <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="modalAssetLocation" placeholder="เช่น ห้องประชุม 302 · ชั้น 3" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">อาคาร</label>
+              <select class="form-select-custom" id="modalAssetBuilding">
+                <option value="ตึก 1 อาคารอาทิตย์อุไรรัตน์">ตึก 1 อาคารอาทิตย์อุไรรัตน์</option>
+                <option value="ตึก 3 อาคารอุไรรัตน์">ตึก 3 อาคารอุไรรัตน์</option>
+                <option value="ตึก 5 อาคารวิษณุรัตน์">ตึก 5 อาคารวิษณุรัตน์</option>
+                <option value="ตึก 6 โรงอาหารกลาง">ตึก 6 โรงอาหารกลาง</option>
+                <option value="ตึก 7 อาคารหอสมุด">ตึก 7 อาคารหอสมุด</option>
+                <option value="ตึก 11 อาคารรัตนคุณากร">ตึก 11 อาคารรัตนคุณากร</option>
+                <option value="ตึก 13 อาคารสำนักงานอาคารและสิ่งแวดล้อม">ตึก 13 อาคารสำนักงานอาคารและสิ่งแวดล้อม</option>
+                <option value="ตึก 14 อาคารนันทนาการ">ตึก 14 อาคารนันทนาการ</option>
+                <option value="ตึก 15 อาคาร Digital Multimedia Complex">ตึก 15 อาคาร Digital Multimedia Complex</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">สถานะเริ่มต้น</label>
+              <select class="form-select-custom" id="modalAssetStatus">
+                <option value="ใช้งานปกติ">ใช้งานปกติ</option>
+                <option value="รอตรวจสอบ">รอตรวจสอบ</option>
+                <option value="อยู่ระหว่างซ่อม">อยู่ระหว่างซ่อม</option>
+              </select>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+            <button type="submit" class="btn btn-sm btn-primary">บันทึกครุภัณฑ์</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      renderEquipmentTable();
+    });
+
+    function renderEquipmentTable() {
+      const equipments = DB.getEquipment();
+      const tbody = document.getElementById('equipmentTbody');
+      const search = document.getElementById('assetSearchInput').value.toLowerCase().trim();
+      const cat = document.getElementById('assetCategoryFilter').value;
+      const status = document.getElementById('assetStatusFilter').value;
+      const building = document.getElementById('assetBuildingFilter').value;
+
+      const filtered = equipments.filter(item => {
+        const matchesSearch = !search || 
+          item.asset_no.toLowerCase().includes(search) || 
+          item.equipment_name.toLowerCase().includes(search) ||
+          item.location.toLowerCase().includes(search);
+        const matchesCat = !cat || item.category === cat;
+        const matchesStatus = !status || item.status === status;
+        const matchesBuilding = !building || item.building === building;
+        return matchesSearch && matchesCat && matchesStatus && matchesBuilding;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลครุภัณฑ์ที่ค้นหา</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        let badgeClass = 'status-normal';
+        if (item.status === 'อยู่ระหว่างซ่อม') badgeClass = 'status-in-progress';
+        if (item.status === 'ใช้งานปกติ') badgeClass = 'status-completed';
+        if (item.status === 'รอตรวจสอบ') badgeClass = 'status-pending';
+
+        return `
+          <tr>
+            <td>
+              <a href="javascript:void(0)" onclick="showToast('รหัสครุภัณฑ์: ${item.asset_no} (${item.equipment_name})', 'info')" class="fw-semibold text-primary font-numeric text-decoration-none">
+                ${item.asset_no}
+              </a>
+            </td>
+            <td class="fw-medium text-dark">${item.equipment_name}</td>
+            <td class="text-secondary">${item.category}</td>
+            <td class="text-secondary">${item.location}</td>
+            <td><span class="status-badge ${badgeClass}">• ${item.status}</span></td>
+            <td class="text-muted font-numeric">${item.next_due_date || '30 ต.ค. 2569'}</td>
+            <td class="text-center">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-light border-0 py-0 px-2" type="button" data-bs-toggle="dropdown">
+                  <i class="bi bi-three-dots"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                  <li><a class="dropdown-item small" href="new-request.html"><i class="bi bi-plus-circle me-2 text-primary"></i>แจ้งซ่อมครุภัณฑ์นี้</a></li>
+                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="showToast('ดูประวัติการซ่อมบำรุงของ ${item.asset_no}', 'info')"><i class="bi bi-clock-history me-2 text-secondary"></i>ประวัติการซ่อม</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      document.getElementById('assetPaginationInfo').textContent = `แสดง 1-${Math.min(filtered.length, 7)} จาก ${filtered.length} รายการ`;
+    }
+
+    function handleAddEquipmentSubmit(e) {
+      e.preventDefault();
+      const assetNo = document.getElementById('modalAssetNo').value.trim();
+      const name = document.getElementById('modalAssetName').value.trim();
+      const category = document.getElementById('modalAssetCategory').value;
+      const location = document.getElementById('modalAssetLocation').value.trim();
+      const building = document.getElementById('modalAssetBuilding').value;
+      const status = document.getElementById('modalAssetStatus').value;
+
+      DB.addEquipment({
+        asset_no: assetNo,
+        equipment_name: name,
+        category: category,
+        location: location,
+        location_full: `${building} · ${location}`,
+        building: building,
+        status: status,
+        next_due_date: "15 พ.ย. 2569"
+      });
+
+      const modalEl = document.getElementById('addEquipmentModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+
+      showToast(`เพิ่มครุภัณฑ์ ${assetNo} เรียบร้อยแล้ว`, 'success');
+      renderEquipmentTable();
+    }
+  </script>
+</body>
+</html>
+

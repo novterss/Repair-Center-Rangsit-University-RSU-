@@ -1,0 +1,13 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/login.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/new-request", "destination": "/new-request.html" },
+    { "source": "/track-repair", "destination": "/track-repair.html" },
+    { "source": "/assigned-tasks", "destination": "/assigned-tasks.html" },
+    { "source": "/assets", "destination": "/assets.html" },
+    { "source": "/maintenance-plans", "destination": "/maintenance-plans.html" }
+  ]
+}

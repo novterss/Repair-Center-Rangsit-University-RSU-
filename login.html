@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เข้าสู่ระบบ - ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU Smart Repair)</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link href="css/style.css" rel="stylesheet">
+  <style>
+    .login-wrapper {
+      min-height: 100vh;
+      display: flex;
+    }
+    .login-hero-side {
+      flex: 1.1;
+      background: linear-gradient(145deg, #f0f7ff 0%, #eff6ff 40%, #fdf2f8 100%);
+      padding: 48px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid #e2e8f0;
+    }
+    .login-form-side {
+      flex: 1;
+      background-color: #ffffff;
+      padding: 48px 64px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow-y: auto;
+    }
+    .hero-features-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-xl);
+      padding: 8px 24px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+      margin-top: 36px;
+      max-width: 520px;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+    }
+    .feature-item:not(:last-child) {
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .feature-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background-color: var(--primary-subtle);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .login-form-container {
+      max-width: 440px;
+      width: 100%;
+      margin: auto;
+    }
+    .input-icon-group {
+      position: relative;
+    }
+    .input-icon-group i.input-icon-left {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #94a3b8;
+      font-size: 16px;
+    }
+    .input-icon-group input {
+      padding-left: 42px;
+      height: 46px;
+      border-radius: var(--radius-md);
+      border: 1px solid #cbd5e1;
+      font-size: 14.5px;
+    }
+    .input-icon-group input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+    .btn-login-submit {
+      height: 48px;
+      background: var(--rsu-gradient);
+      color: white;
+      font-weight: 600;
+      font-size: 15px;
+      border-radius: var(--radius-md);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-login-submit:hover {
+      opacity: 0.95;
+      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3);
+      color: white;
+    }
+    .badge-dept {
+      display: inline-block;
+      padding: 6px 14px;
+      background-color: #fce7f3;
+      color: #be185d;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    .hero-heading {
+      font-size: 38px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.25;
+      margin-bottom: 16px;
+      letter-spacing: -0.5px;
+    }
+    .hero-sub {
+      font-size: 15px;
+      color: #475569;
+      line-height: 1.6;
+      max-width: 520px;
+    }
+    .test-accounts-box {
+      background-color: #f8fafc;
+      border: 1px dashed #cbd5e1;
+      border-radius: var(--radius-md);
+      padding: 12px;
+      margin-top: 20px;
+      font-size: 12.5px;
+    }
+    @media (max-width: 991px) {
+      .login-wrapper {
+        flex-direction: column;
+      }
+      .login-hero-side {
+        padding: 32px 24px;
+      }
+      .login-form-side {
+        padding: 40px 24px;
+      }
+      .hero-heading {
+        font-size: 28px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="login-wrapper">
+    <!-- Left Hero Side -->
+    <div class="login-hero-side">
+      <!-- Top Brand -->
+      <div class="d-flex align-items-center gap-3">
+        <div class="brand-icon">
+          <i class="bi bi-tools"></i>
+        </div>
+        <div>
+          <div class="brand-title" style="color: #0369a1; font-weight: 700;">ศูนย์บริการซ่อมบำรุง</div>
+          <div class="brand-subtitle fw-semibold text-secondary">มหาวิทยาลัยรังสิต (RSU)</div>
+        </div>
+      </div>
+
+      <!-- Hero Middle Content -->
+      <div class="my-auto py-4">
+        <span class="badge-dept">สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</span>
+        <h1 class="hero-heading">
+          ทุกงานซ่อม ดูแลได้<br>ในระบบเดียว
+        </h1>
+        <p class="hero-sub">
+          แจ้งปัญหา ติดตามความคืบหน้า และวางแผนบำรุงรักษา เพื่อให้อาคารเรียน ห้องปฏิบัติการ และครุภัณฑ์ของมหาวิทยาลัยรังสิตพร้อมใช้งานเสมอ
+        </p>
+
+        <!-- Feature List Card -->
+        <div class="hero-features-card">
+          <div class="feature-item">
+            <div class="feature-icon-box" style="background-color: #fdf2f8; color: #db2777;">
+              <i class="bi bi-file-earmark-plus"></i>
+            </div>
+            <div>
+              <div class="fw-semibold text-dark" style="font-size: 15px;">แจ้งซ่อมได้สะดวกรวดเร็ว</div>
+              <div class="text-muted small">ระบุตึก/ห้อง และแนบข้อมูลปัญหาพร้อมภาพถ่าย</div>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-box" style="background-color: #f0f9ff; color: #0284c7;">
+              <i class="bi bi-list-check"></i>
+            </div>
+            <div>
+              <div class="fw-semibold text-dark" style="font-size: 15px;">ติดตามได้ทุกขั้นตอน</div>
+              <div class="text-muted small">ตรวจสอบสถานะ เส้นเวลา (Timeline) และทีมช่างผู้ดูแล</div>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon-box" style="background-color: #f0fdf4; color: #16a34a;">
+              <i class="bi bi-calendar-check"></i>
+            </div>
+            <div>
+              <div class="fw-semibold text-dark" style="font-size: 15px;">บำรุงรักษาเชิงป้องกัน (PM)</div>
+              <div class="text-muted small">ดูแลระบบปรับอากาศ ไฟฟ้า และอุปกรณ์แล็บตามรอบ</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Left Footer -->
+      <div class="text-muted small">
+        มหาวิทยาลัยรังสิต · สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)
+      </div>
+    </div>
+
+    <!-- Right Form Side -->
+    <div class="login-form-side">
+      <div></div> <!-- Spacer -->
+
+      <div class="login-form-container">
+        <h2 class="fw-bold mb-2 text-dark" style="font-size: 28px;">เข้าสู่ระบบ</h2>
+        <p class="text-muted mb-4" style="font-size: 14px; line-height: 1.5;">
+          ยินดีต้อนรับอาจารย์และบุคลากร ม.รังสิต<br>กรุณาใช้อีเมลสถาบันเพื่อเข้าใช้งานระบบแจ้งซ่อม
+        </p>
+
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)">
+          <div class="mb-3">
+            <label class="form-label-custom">อีเมลบุคลากร (@rsu.ac.th)</label>
+            <div class="input-icon-group">
+              <i class="bi bi-envelope input-icon-left"></i>
+              <input type="email" id="loginEmail" class="form-control" placeholder="เช่น naphatcharakan.p68@rsu.ac.th" required value="naphatcharakan.p68@rsu.ac.th">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom">รหัสผ่าน</label>
+            <div class="input-icon-group">
+              <i class="bi bi-lock input-icon-left"></i>
+              <input type="password" id="loginPassword" class="form-control" placeholder="กรอกรหัสผ่าน" required value="admin123">
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+              <label class="form-check-label text-muted small" for="rememberMe">
+                จดจำการเข้าสู่ระบบ
+              </label>
+            </div>
+            <a href="javascript:void(0)" onclick="openForgotPasswordModal()" class="small text-decoration-none">ลืมรหัสผ่าน?</a>
+          </div>
+
+          <button type="submit" class="btn btn-login-submit w-100">
+            <i class="bi bi-arrow-right"></i> เข้าสู่ระบบ
+          </button>
+
+          <!-- Quick Test Roles Selector -->
+          <div class="test-accounts-box">
+            <div class="fw-semibold text-secondary mb-2 d-flex align-items-center gap-1">
+              <i class="bi bi-person-badge"></i> ทดสอบด่วนโดยเลือกบทบาท:
+            </div>
+            <div class="d-flex flex-wrap gap-1">
+              <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickLogin(1)">
+                ณภัทรกัญจน์ (ผู้ดูแลระบบ)
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger" onclick="setQuickLogin(2)">
+                สมชาย (ช่างเทคนิค ตึก 13)
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickLogin(3)">
+                อนันต์ (ผู้ดูแลระบบ)
+              </button>
+            </div>
+          </div>
+
+          <!-- Security note box -->
+          <div class="mt-4 pt-3 border-top text-muted small d-flex gap-2">
+            <i class="bi bi-shield-check text-success fs-5"></i>
+            <div>
+              สำหรับบุคลากร มหาวิทยาลัยรังสิต เท่านั้น หากยังไม่มีบัญชี กรุณาติดต่อสำนักงานอาคารฯ ตึก 13 ต่อ 1204 หรือ 
+              <a href="javascript:void(0)" onclick="openRegisterModal()" class="fw-semibold text-primary text-decoration-none">คลิกที่นี่เพื่อลงทะเบียนบุคลากรใหม่</a>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Footer -->
+      <div class="text-center text-muted small mt-4">
+        มหาวิทยาลัยรังสิต · Rangsit University
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal fade" id="registerUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold">ลงทะเบียนบุคลากรใหม่ (มหาวิทยาลัยรังสิต)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="registerUserForm" onsubmit="handleRegisterSubmit(event)">
+          <div class="modal-body p-4">
+            <div class="mb-3">
+              <label class="form-label-custom">ชื่อ - นามสกุล <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="regFullName" placeholder="เช่น อาจารย์ ดร.สมปอง พัฒนาดี" required>
+            </div>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label-custom">คณะ / สำนัก / หน่วยงาน <span class="text-danger">*</span></label>
+                <select class="form-select-custom" id="regDepartment" required>
+                  <option value="วิทยาลัยนวัตกรรมดิจิทัลเทคโนโลยี">วิทยาลัยนวัตกรรมดิจิทัลเทคโนโลยี (DIT)</option>
+                  <option value="สำนักทะเบียนและประมวลผล">สำนักทะเบียนและประมวลผล (ตึก 11)</option>
+                  <option value="วิทยาลัยนิเทศศาสตร์">วิทยาลัยนิเทศศาสตร์ (ตึก 15)</option>
+                  <option value="คณะวิศวกรรมศาสตร์">คณะวิศวกรรมศาสตร์ (ตึก 5)</option>
+                  <option value="สำนักงานอาคารและสิ่งแวดล้อม">สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</option>
+                  <option value="สำนักหอสมุด">สำนักหอสมุด (ตึก 7)</option>
+                  <option value="วิทยาลัยแพทยศาสตร์">วิทยาลัยแพทยศาสตร์ (ตึก 4)</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label-custom">หมายเลขติดต่อภายใน <span class="text-danger">*</span></label>
+                <input type="text" class="form-control-custom" id="regPhone" placeholder="เช่น ต่อ 1305 หรือ 081-xxx-xxxx" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">บทบาทในระบบ <span class="text-danger">*</span></label>
+              <select class="form-select-custom" id="regRole" required>
+                <option value="เจ้าหน้าที่">อาจารย์ / เจ้าหน้าที่ (ผู้แจ้งซ่อมและติดตามงาน)</option>
+                <option value="ช่างเทคนิค">ช่างเทคนิคประจำอาคาร (ฝ่ายอาคารฯ ตึก 13)</option>
+                <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ (ฝ่ายอาคารและสิ่งแวดล้อม)</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">อีเมลมหาวิทยาลัยรังสิต (@rsu.ac.th) <span class="text-danger">*</span></label>
+              <input type="email" class="form-control-custom" id="regEmail" placeholder="เช่น sompong.p@rsu.ac.th" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">รหัสผ่าน <span class="text-danger">*</span></label>
+              <input type="password" class="form-control-custom" id="regPassword" placeholder="ตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร" required minlength="6">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+            <button type="submit" class="btn btn-sm btn-primary">ยืนยันลงทะเบียน</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold">รีเซ็ตรหัสผ่าน (Forgot / Reset Password)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="forgotPasswordForm" onsubmit="handleForgotPasswordSubmit(event)">
+          <div class="modal-body p-4">
+            <p class="text-muted small mb-3">
+              ระบุอีเมลบุคลากร ม.รังสิต (@rsu.ac.th) และตั้งรหัสผ่านใหม่ที่ต้องการใช้งาน
+            </p>
+            <div class="mb-3">
+              <label class="form-label-custom">อีเมลบุคลากร <span class="text-danger">*</span></label>
+              <input type="email" class="form-control-custom" id="forgotEmail" placeholder="เช่น naphatcharakan.p68@rsu.ac.th" required value="naphatcharakan.p68@rsu.ac.th">
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">รหัสผ่านใหม่ <span class="text-danger">*</span></label>
+              <input type="password" class="form-control-custom" id="forgotNewPassword" placeholder="กำหนดรหัสผ่านใหม่อย่างน้อย 6 ตัวอักษร" required minlength="6">
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">ยืนยันรหัสผ่านใหม่ <span class="text-danger">*</span></label>
+              <input type="password" class="form-control-custom" id="forgotConfirmPassword" placeholder="กรอกรหัสผ่านใหม่อีกครั้ง" required minlength="6">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+            <button type="submit" class="btn btn-sm btn-primary">ยืนยันรีเซ็ตรหัสผ่าน</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/data.js"></script>
+  <script>
+    function openForgotPasswordModal() {
+      const modal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
+      modal.show();
+    }
+
+    function handleForgotPasswordSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('forgotEmail').value.trim();
+      const newPass = document.getElementById('forgotNewPassword').value;
+      const confirmPass = document.getElementById('forgotConfirmPassword').value;
+
+      if (newPass !== confirmPass) {
+        alert('รหัสผ่านใหม่และการยืนยันรหัสผ่านไม่ตรงกัน');
+        return;
+      }
+
+      const updated = DB.resetPassword(email, newPass);
+      if (updated) {
+        const modalEl = document.getElementById('forgotPasswordModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        modal.hide();
+
+        document.getElementById('loginEmail').value = email;
+        document.getElementById('loginPassword').value = newPass;
+
+        alert(`รีเซ็ตรหัสผ่านสำเร็จเรียบร้อยแล้ว!\nสามารถกด "เข้าสู่ระบบ" ด้วยรหัสผ่านใหม่ได้ทันที`);
+      } else {
+        alert(`ไม่พบบัญชีอีเมล ${email} ในระบบ กรุณาตรวจสอบอีเมลหรือลงทะเบียนใหม่`);
+      }
+    }
+
+    function openRegisterModal() {
+      const modal = new bootstrap.Modal(document.getElementById('registerUserModal'));
+      modal.show();
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('regFullName').value.trim();
+      const department = document.getElementById('regDepartment').value;
+      const phone = document.getElementById('regPhone').value.trim();
+      const role = document.getElementById('regRole').value;
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const password = document.getElementById('regPassword').value;
+
+      // Check if email already exists
+      const existing = DB.getUsers().find(u => u.email.toLowerCase() === email);
+      if (existing) {
+        alert('อีเมลนี้ถูกใช้งานแล้วในระบบ กรุณาใช้อีเมลอื่น');
+        return;
+      }
+
+      const newUser = DB.addUser({
+        email: email,
+        password: password,
+        full_name: fullName,
+        phone: phone,
+        department: department,
+        role: role
+      });
+
+      const modalEl = document.getElementById('registerUserModal');
+      const modal = bootstrap.Modal.getInstance(modalEl);
+      modal.hide();
+
+      // Auto-fill login form
+      document.getElementById('loginEmail').value = email;
+      document.getElementById('loginPassword').value = password;
+
+      alert(`ลงทะเบียนสำเร็จ!\nยินดีต้อนรับ ${fullName} (${role})\nระบบกรอกข้อมูลให้เรียบร้อยแล้ว สามารถกด "เข้าสู่ระบบ" ได้ทันที`);
+    }
+
+    function setQuickLogin(userId) {
+      const users = DB.getUsers();
+      const user = users.find(u => u.user_id === userId);
+      if (user) {
+        document.getElementById('loginEmail').value = user.email;
+        document.getElementById('loginPassword').value = user.password;
+      }
+    }
+
+    function handleLoginSubmit(event) {
+      event.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+
+      const users = DB.getUsers();
+      const matchedUser = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+      if (matchedUser) {
+        DB.setCurrentUser(matchedUser.user_id);
+        if (matchedUser.role === 'ช่างเทคนิค') {
+          window.location.href = 'assigned-tasks.html';
+        } else {
+          window.location.href = 'index.html';
+        }
+      } else {
+        alert('ไม่พบบัญชีผู้ใช้นี้ หรือรหัสผ่านไม่ถูกต้อง');
+      }
+    }
+  </script>
+</body>
+</html>
+
