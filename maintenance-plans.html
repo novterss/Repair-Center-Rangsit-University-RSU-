@@ -311,6 +311,7 @@
             <div class="mb-3">
               <label class="form-label-custom">ช่างผู้รับผิดชอบ <span class="text-danger">*</span></label>
               <select class="form-select-custom" id="modalPlanTechnician" required></select>
+              <div class="form-text" id="planTechHint"></div>
             </div>
           </div>
           <div class="modal-footer">
@@ -363,28 +364,40 @@
       renderPlansTable();
     });
 
-    // People who can be responsible for a plan: technicians and admins
-    function getResponsibleUsers() {
-      return DB.getUsers().filter(u => u.role === ROLE_TECH || u.role === ROLE_ADMIN);
+    function getTechName(plan) {
+      const tech = DB.getUserById(plan.technician_id);
+      return tech ? tech.full_name : '-';
     }
 
     function populatePlanEquipmentModal() {
       const select = document.getElementById('modalPlanEquipment');
       select.innerHTML = DB.getEquipment().map(e => `
         <option value="${e.equipment_id}">
-          ${escapeHtml(e.asset_no)} · ${escapeHtml(e.equipment_name)} (${escapeHtml(e.location)})
+          ${escapeHtml(e.asset_no)} · ${escapeHtml(e.equipment_name)} (${escapeHtml(DB.getCategoryName(e.category_id))})
         </option>
       `).join('');
+      select.onchange = populatePlanTechnicianOptions;
+    }
+
+    // Only technicians qualified for the selected equipment's category can own the plan
+    function populatePlanTechnicianOptions() {
+      const eq = DB.getEquipmentById(document.getElementById('modalPlanEquipment').value);
+      const qualified = eq ? DB.getQualifiedTechnicians(eq.category_id) : [];
+      const select = document.getElementById('modalPlanTechnician');
+      select.innerHTML = qualified.length === 0
+        ? `<option value="" disabled selected>ไม่มีช่างที่รับงานประเภทนี้</option>`
+        : qualified.map(u => `<option value="${u.user_id}">${escapeHtml(u.full_name)}</option>`).join('');
+      document.getElementById('planTechHint').textContent = eq
+        ? `ประเภทงาน: ${DB.getCategoryName(eq.category_id)} · แสดงเฉพาะช่างที่รับงานประเภทนี้ได้`
+        : '';
     }
 
     function populateTechnicianSelects() {
-      const people = getResponsibleUsers();
-      document.getElementById('modalPlanTechnician').innerHTML = people.map(u => `
-        <option value="${u.user_id}">${escapeHtml(u.full_name)}</option>
-      `).join('');
-      const names = [...new Set([...people.map(u => u.full_name), ...DB.getPlans().map(p => p.technician_name)])];
+      populatePlanTechnicianOptions();
+      const ids = [...new Set(DB.getPlans().map(p => p.technician_id))];
       document.getElementById('planTechFilter').innerHTML = `<option value="">ผู้รับผิดชอบทั้งหมด</option>` +
-        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+        ids.map(id => DB.getUserById(id)).filter(Boolean)
+          .map(u => `<option value="${u.user_id}">${escapeHtml(u.full_name)}</option>`).join('');
     }
 
     function isCurrentMonth(d) {
@@ -422,7 +435,7 @@
           item.equipment_name.toLowerCase().includes(search) ||
           item.task.toLowerCase().includes(search);
         const matchesStatus = !status || DB.getPlanStatus(item) === status;
-        const matchesTech = !tech || item.technician_name === tech;
+        const matchesTech = !tech || item.technician_id === Number(tech);
         const matchesFreq = !freq || item.frequency === freq;
         return inViewPeriod(item) && matchesSearch && matchesStatus && matchesTech && matchesFreq;
       }).sort((a, b) => (ThaiDate.parse(a.next_due_date) || 0) - (ThaiDate.parse(b.next_due_date) || 0));
@@ -430,7 +443,9 @@
 
     function renderPlansTable() {
       const tbody = document.getElementById('plansTbody');
-      const canManage = DB.hasRole(ROLE_TECH, ROLE_ADMIN);
+      const me = DB.getCurrentUser();
+      // Admins manage every plan; a technician only the plans assigned to them
+      const canManage = item => !!me && (me.role === ROLE_ADMIN || item.technician_id === me.user_id);
 
       // Period label and counters (counters are for all plans)
       document.getElementById('currentPeriodLabel').textContent =
@@ -468,10 +483,10 @@
               ${escapeHtml(item.next_due_date)}
               ${item.last_done_date ? `<div class="small text-muted">ทำล่าสุด ${escapeHtml(item.last_done_date)}</div>` : ''}
             </td>
-            <td class="fw-medium text-dark">${escapeHtml(item.technician_name)}</td>
+            <td class="fw-medium text-dark">${escapeHtml(getTechName(item))}</td>
             <td><span class="status-badge ${badgeClass}">${escapeHtml(status)}</span></td>
             <td class="text-center">
-              ${canManage ? `
+              ${canManage(item) ? `
               <div class="dropdown">
                 <button class="btn btn-sm btn-light border-0 py-0 px-2" type="button" data-bs-toggle="dropdown">
                   <i class="bi bi-three-dots"></i>
@@ -494,7 +509,17 @@
       renderPlansTable();
     }
 
+    function canManagePlan(planId) {
+      const me = DB.getCurrentUser();
+      const plan = DB.getPlans().find(p => p.plan_id === planId);
+      return !!me && !!plan && (me.role === ROLE_ADMIN || plan.technician_id === me.user_id);
+    }
+
     function recordPlanDone(planId) {
+      if (!canManagePlan(planId)) {
+        showToast('บันทึกได้เฉพาะแผนที่ตนเองรับผิดชอบ', 'danger');
+        return;
+      }
       const user = DB.getCurrentUser();
       const updated = DB.recordMaintenance(planId, user.full_name);
       if (updated) {
@@ -504,6 +529,10 @@
     }
 
     function openPostponeModal(planId) {
+      if (!canManagePlan(planId)) {
+        showToast('เลื่อนกำหนดได้เฉพาะแผนที่ตนเองรับผิดชอบ', 'danger');
+        return;
+      }
       const plan = DB.getPlans().find(p => p.plan_id === planId);
       if (!plan) return;
       postponePlanId = planId;
@@ -552,6 +581,11 @@
         return;
       }
 
+      if (!DB.canHandle(tech.user_id, eq.category_id)) {
+        showToast(`${tech.full_name} ไม่ได้รับงานประเภท ${DB.getCategoryName(eq.category_id)}`, 'danger');
+        return;
+      }
+
       DB.addPlan({
         code: code,
         equipment_id: eq.equipment_id,
@@ -561,7 +595,6 @@
         task: task,
         frequency: freq,
         next_due_date: ThaiDate.format(dueDate),
-        technician_name: tech.full_name,
         status: "รอดำเนินการ"
       });
 
@@ -571,7 +604,7 @@
       document.getElementById('addPlanForm').reset();
       document.getElementById('modalPlanDueDate').value = ThaiDate.toISO(ThaiDate.addMonths(ThaiDate.today(), 1));
 
-      showToast(`เพิ่มแผนบำรุงรักษา ${code} เรียบร้อยแล้ว`, 'success');
+      showToast(`เพิ่มแผนบำรุงรักษา ${code} แล้ว · ส่งแจ้งเตือนถึง ${tech.full_name} แล้ว`, 'success');
       // Jump to the month of the new plan so it is visible
       viewMonth = new Date(dueDate.getFullYear(), dueDate.getMonth(), 1);
       planPage = 1;
@@ -581,7 +614,7 @@
 
     function exportPlans() {
       const rows = getFilteredPlans().map(p => [
-        p.code, p.equipment_name, p.location, p.task, p.frequency, p.next_due_date, p.technician_name, DB.getPlanStatus(p)
+        p.code, p.equipment_name, p.location, p.task, p.frequency, p.next_due_date, getTechName(p), DB.getPlanStatus(p)
       ]);
       exportCSV('maintenance-plans.csv', ['รหัสแผน', 'ครุภัณฑ์', 'สถานที่', 'รายการบำรุงรักษา', 'รอบดูแล', 'กำหนดดำเนินการ', 'ผู้รับผิดชอบ', 'สถานะ'], rows);
     }

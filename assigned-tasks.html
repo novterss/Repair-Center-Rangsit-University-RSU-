@@ -333,9 +333,12 @@
       if (!user) return;
       document.getElementById('myTaskStaffName').textContent = user.role === ROLE_ADMIN
         ? 'งานที่มอบหมายแล้วทั้งหมด (ผู้ดูแลระบบ)'
-        : `${user.full_name}${user.student_id ? ` (${user.student_id})` : ''}`;
-      const first = getMyTasks()[0];
-      selectedTicketNo = first ? first.ticket_no : null;
+        : `${user.full_name} · รับงาน: ${DB.getTechnicianSpecialtyText(user.user_id)}`;
+      // ?ticket=... (from a notification) opens that job; otherwise the first one
+      const requested = new URLSearchParams(window.location.search).get('ticket');
+      const tasks = getMyTasks();
+      const target = tasks.find(t => t.ticket_no === requested) || tasks[0];
+      selectedTicketNo = target ? target.ticket_no : null;
       renderTechnicianTasks();
       loadSelectedTaskIntoForm(selectedTicketNo);
     });
@@ -401,7 +404,7 @@
               <div class="text-muted small">${escapeHtml(item.location_text)}</div>
             </td>
             <td><span class="status-badge ${pBadgeClass}">${escapeHtml(item.priority)}</span></td>
-            <td><span class="status-badge ${sBadgeClass}">${escapeHtml(item.status)}</span></td>
+            <td><span class="status-badge ${sBadgeClass}">${escapeHtml(item.status)}</span>${DB.isRepairOverdue(item) ? '<span class="overdue-tag">เกินกำหนด</span>' : ''}</td>
           </tr>
         `;
       }).join('');

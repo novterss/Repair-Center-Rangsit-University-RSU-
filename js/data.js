@@ -4,7 +4,7 @@
    Data Layer - ERD based storage & LocalStorage Mock DB
    ========================================================================== */
 
-const STORAGE_KEY_PREFIX = 'rsu_repair_v6_';
+const STORAGE_KEY_PREFIX = 'rsu_repair_v7_';
 
 // Initial Mock Database based on ERD and Rangsit University Student Team
 const DEFAULT_USERS = [
@@ -69,7 +69,53 @@ const DEFAULT_USERS = [
     department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
     role: "ผู้ดูแลระบบ",
     avatar: "ชา"
+  },
+  {
+    user_id: 6,
+    student_id: null,
+    email: "prasert.j@rsu.ac.th",
+    password: "password123",
+    full_name: "ประเสริฐ ใจดี",
+    display_title: "ประเสริฐ ใจดี (บัญชีตัวอย่าง)",
+    phone: "ต่อ 1210",
+    department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
+    role: "ช่างเทคนิค",
+    title_role: "ช่างคอมพิวเตอร์และอุปกรณ์สำนักงาน (ทุกอาคาร)",
+    avatar: "ปส"
+  },
+  {
+    user_id: 7,
+    student_id: null,
+    email: "somsak.k@rsu.ac.th",
+    password: "password123",
+    full_name: "สมศักดิ์ แก้วมณี",
+    display_title: "สมศักดิ์ แก้วมณี (บัญชีตัวอย่าง)",
+    phone: "ต่อ 1212",
+    department: "สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)",
+    role: "ช่างเทคนิค",
+    title_role: "ช่างอาคารและสถานที่ (ทุกอาคาร)",
+    avatar: "สศ"
   }
+];
+
+// Work categories (ประเภทงาน) — equipment belongs to one, technicians are qualified for some
+const DEFAULT_CATEGORIES = [
+  { category_id: 1, category_name: "ระบบปรับอากาศ" },
+  { category_id: 2, category_name: "อุปกรณ์สำนักงาน" },
+  { category_id: 3, category_name: "ระบบไฟฟ้า" },
+  { category_id: 4, category_name: "ระบบประปา" },
+  { category_id: 5, category_name: "คอมพิวเตอร์" },
+  { category_id: 6, category_name: "อาคารและสถานที่" }
+];
+
+// Which technician may take which category (M:N between users and categories)
+const DEFAULT_TECHNICIAN_SPECIALTIES = [
+  { technician_id: 2, category_id: 1 },  // ธนากร — ระบบปรับอากาศ
+  { technician_id: 4, category_id: 3 },  // ณภัทร — ระบบไฟฟ้า
+  { technician_id: 4, category_id: 4 },  // ณภัทร — ระบบประปา
+  { technician_id: 6, category_id: 2 },  // ประเสริฐ — อุปกรณ์สำนักงาน
+  { technician_id: 6, category_id: 5 },  // ประเสริฐ — คอมพิวเตอร์
+  { technician_id: 7, category_id: 6 }   // สมศักดิ์ — อาคารและสถานที่
 ];
 
 const DEFAULT_EQUIPMENT = [
@@ -77,7 +123,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 1,
     asset_no: "AC-003",
     equipment_name: "เครื่องปรับอากาศ 24,000 บีทียู",
-    category: "ระบบปรับอากาศ",
+    category_id: 1,
     location: "ห้องประชุม 302 · ชั้น 3",
     location_full: "ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 3 · ห้องประชุม 302",
     building: "ตึก 1 อาคารอาทิตย์อุไรรัตน์",
@@ -88,7 +134,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 2,
     asset_no: "PR-012",
     equipment_name: "เครื่องพิมพ์เลเซอร์",
-    category: "อุปกรณ์สำนักงาน",
+    category_id: 2,
     location: "สำนักทะเบียน · ชั้น 1",
     location_full: "ตึก 11 อาคารรัตนคุณากร · ชั้น 1 · สำนักทะเบียน",
     building: "ตึก 11 อาคารรัตนคุณากร",
@@ -99,7 +145,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 3,
     asset_no: "EL-021",
     equipment_name: "ชุดโคมไฟทางเดิน LED",
-    category: "ระบบไฟฟ้า",
+    category_id: 3,
     location: "โถงทางเดิน · ชั้น 2",
     location_full: "ตึก 7 อาคารหอสมุด · ชั้น 2 · โถงทางเดินกลาง",
     building: "ตึก 7 อาคารหอสมุด",
@@ -110,7 +156,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 4,
     asset_no: "PL-008",
     equipment_name: "ชุดก๊อกน้ำอ่างล้างมือ",
-    category: "ระบบประปา",
+    category_id: 4,
     location: "ห้องน้ำ · ชั้น 1",
     location_full: "ตึก 6 โรงอาหารกลาง · ชั้น 1 · ห้องน้ำ",
     building: "ตึก 6 โรงอาหารกลาง",
@@ -121,7 +167,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 5,
     asset_no: "PC-045",
     equipment_name: "เครื่องคอมพิวเตอร์ตัดต่อ Studio Mac",
-    category: "คอมพิวเตอร์",
+    category_id: 5,
     location: "ห้อง Lab ตัดต่อ · ชั้น 4",
     location_full: "ตึก 15 อาคาร Digital Multimedia Complex · ชั้น 4 · ห้องสตูดิโอ 401",
     building: "ตึก 15 อาคาร Digital Multimedia Complex",
@@ -132,7 +178,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 6,
     asset_no: "DR-007",
     equipment_name: "ประตูโช้คอัพห้องประชุม",
-    category: "อาคารและสถานที่",
+    category_id: 6,
     location: "ห้องประชุม 201 · ชั้น 2",
     location_full: "ตึก 3 อาคารอุไรรัตน์ · ชั้น 2 · ห้องประชุม 201",
     building: "ตึก 3 อาคารอุไรรัตน์",
@@ -143,7 +189,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 7,
     asset_no: "AC-004",
     equipment_name: "เครื่องปรับอากาศ 18,000 บีทียู",
-    category: "ระบบปรับอากาศ",
+    category_id: 1,
     location: "ห้องแล็บวิศวกรรม · ชั้น 3",
     location_full: "ตึก 5 อาคารวิษณุรัตน์ · ชั้น 3 · ห้องทำงาน 305",
     building: "ตึก 5 อาคารวิษณุรัตน์",
@@ -154,7 +200,7 @@ const DEFAULT_EQUIPMENT = [
     equipment_id: 8,
     asset_no: "AC-001",
     equipment_name: "เครื่องปรับอากาศ 36,000 บีทียู",
-    category: "ระบบปรับอากาศ",
+    category_id: 1,
     location: "ห้องรับรองอธิการบดี · ชั้น 1",
     location_full: "ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 1 · ห้องรับรอง",
     building: "ตึก 1 อาคารอาทิตย์อุไรรัตน์",
@@ -388,7 +434,7 @@ const DEFAULT_REPAIRS = [
     request_id: 5,
     ticket_no: "RQ-691027-010",
     requester_id: 3,
-    technician_id: 2,
+    technician_id: 6,
     equipment_id: 5,
     problem_title: "คอมพิวเตอร์ตัดต่อเปิดไม่ติด",
     problem_detail: "เปิดเครื่องสตูดิโอตัดต่อแล้วพัดลมหมุนแป๊บเดียวแล้วดับ ไฟกระพริบสีส้ม",
@@ -420,13 +466,13 @@ const DEFAULT_REPAIRS = [
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
         user_info: "ชาติวุฒิ ทองจีน · 27 ต.ค., 13:00 น.",
-        note: "มอบหมายให้ ธนากร ยั่งยืน",
+        note: "มอบหมายให้ ประเสริฐ ใจดี",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "ธนากร ยั่งยืน · 28 ต.ค., 09:00 น.",
+        user_info: "ประเสริฐ ใจดี · 28 ต.ค., 09:00 น.",
         note: "เปลี่ยนเพาเวอร์ซัพพลายและลงระบบทดสอบ",
         status: "active"
       },
@@ -443,7 +489,7 @@ const DEFAULT_REPAIRS = [
     request_id: 6,
     ticket_no: "RQ-691027-009",
     requester_id: 1,
-    technician_id: 2,
+    technician_id: 7,
     equipment_id: 6,
     problem_title: "ประตูห้องปิดไม่สนิท",
     problem_detail: "ประตูห้องประชุม 201 โช้คอัพหลวม ปิดเองไม่ได้และมีเสียงดัง",
@@ -475,13 +521,13 @@ const DEFAULT_REPAIRS = [
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
         user_info: "ณพัชรกัณฑ์ พัชญ์ชัยพงศา · 27 ต.ค., 09:45 น.",
-        note: "มอบหมายให้ ธนากร ยั่งยืน",
+        note: "มอบหมายให้ สมศักดิ์ แก้วมณี",
         status: "done"
       },
       {
         step: 3,
         title: "กำลังดำเนินการ",
-        user_info: "ธนากร ยั่งยืน · 27 ต.ค., 10:30 น.",
+        user_info: "สมศักดิ์ แก้วมณี · 27 ต.ค., 10:30 น.",
         note: "ปรับตั้งและทดสอบการเปิด-ปิด",
         status: "done"
       },
@@ -498,7 +544,7 @@ const DEFAULT_REPAIRS = [
     request_id: 7,
     ticket_no: "RQ-691027-008",
     requester_id: 3,
-    technician_id: 4,
+    technician_id: 2,
     equipment_id: 7,
     problem_title: "เครื่องปรับอากาศมีน้ำหยด",
     problem_detail: "แอร์ห้องแล็บวิศวกรรมมีน้ำหยดลงบนโต๊ะเครื่องมือ ท่อน้ำทิ้งน่าจะอุดตัน",
@@ -530,7 +576,7 @@ const DEFAULT_REPAIRS = [
         step: 2,
         title: "รับเรื่องและมอบหมายช่าง",
         user_info: "ชาติวุฒิ ทองจีน · 27 ต.ค., 09:15 น.",
-        note: "มอบหมายให้ ณภัทร สาระคำ",
+        note: "มอบหมายให้ ธนากร ยั่งยืน",
         status: "done"
       },
       {
@@ -562,7 +608,6 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ล้างแผงกรอง / ตรวจน้ำยา",
     frequency: "ทุก 3 เดือน",
     next_due_date: "27 ต.ค. 2569",
-    technician_name: "ธนากร ยั่งยืน",
     status: "เกินกำหนด"
   },
   {
@@ -575,33 +620,30 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ล้างแผงกรอง / ตรวจน้ำยา",
     frequency: "ทุก 3 เดือน",
     next_due_date: "30 ต.ค. 2569",
-    technician_name: "ธนากร ยั่งยืน",
     status: "ใกล้ครบกำหนด"
   },
   {
     plan_id: 3,
     code: "PM-6910-022",
     equipment_id: 7,
-    technician_id: 4,
+    technician_id: 2,
     equipment_name: "AC-004 · เครื่องปรับอากาศ",
     location: "ตึก 5 อาคารวิษณุรัตน์ · ชั้น 3",
     task: "ล้างแผงกรอง / ตรวจน้ำยา",
     frequency: "ทุก 3 เดือน",
     next_due_date: "30 ต.ค. 2569",
-    technician_name: "ณภัทร สาระคำ",
     status: "ใกล้ครบกำหนด"
   },
   {
     plan_id: 4,
     code: "PM-6911-001",
     equipment_id: 2,
-    technician_id: 5,
+    technician_id: 6,
     equipment_name: "PR-012 · เครื่องพิมพ์เลเซอร์",
     location: "ตึก 11 อาคารรัตนคุณากร · ชั้น 1",
     task: "ทำความสะอาด / ทดสอบพิมพ์",
     frequency: "ทุก 6 เดือน",
     next_due_date: "3 พ.ย. 2569",
-    technician_name: "ชาติวุฒิ ทองจีน",
     status: "รอดำเนินการ"
   },
   {
@@ -614,20 +656,18 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ตรวจสายไฟและจุดต่อ",
     frequency: "ทุก 6 เดือน",
     next_due_date: "5 พ.ย. 2569",
-    technician_name: "ณภัทร สาระคำ",
     status: "รอดำเนินการ"
   },
   {
     plan_id: 6,
     code: "PM-6911-003",
     equipment_id: 5,
-    technician_id: 5,
+    technician_id: 6,
     equipment_name: "PC-045 · เครื่อง Mac ตัดต่อ",
     location: "ตึก 15 Digital Multimedia · ชั้น 4",
     task: "ทำความสะอาด / ตรวจระบบ",
     frequency: "ทุก 6 เดือน",
     next_due_date: "6 พ.ย. 2569",
-    technician_name: "ชาติวุฒิ ทองจีน",
     status: "รอดำเนินการ"
   },
   {
@@ -640,7 +680,6 @@ const DEFAULT_MAINTENANCE_PLANS = [
     task: "ตรวจรอยรั่วและวาล์วน้ำ",
     frequency: "ทุก 3 เดือน",
     next_due_date: "10 พ.ย. 2569",
-    technician_name: "ณภัทร สาระคำ",
     status: "รอดำเนินการ"
   }
 ];
@@ -693,6 +732,17 @@ const ThaiDate = {
     if (month === -1) return null;
     return new Date(Number(m[3]) - 543, month, Number(m[1]));
   },
+  // "27 ต.ค. 2569" + "14:20 น." (or a single "27 ต.ค. 2569, 14:20 น.") -> Date with time
+  parseDateTime(dateText, timeText) {
+    const d = this.parse(dateText);
+    if (!d) return null;
+    const m = String(timeText || dateText).match(/(\d{1,2}):(\d{2})/);
+    if (m) d.setHours(Number(m[1]), Number(m[2]));
+    return d;
+  },
+  formatDateTime(d) {
+    return `${this.format(d)}, ${this.formatTime(d)}`;
+  },
   // Date <-> "YYYY-MM-DD" for <input type="date">
   toISO(d) {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -712,6 +762,9 @@ const ThaiDate = {
     return r;
   }
 };
+
+// Repairs without an ETA from the technician are due this many days after the request
+const PRIORITY_DUE_DAYS = { "เร่งด่วน": 1, "ปกติ": 3, "ต่ำ": 7 };
 
 // "ทุก 3 เดือน" -> 3, "ทุก 1 ปี" -> 12
 function frequencyToMonths(freq) {
@@ -743,7 +796,7 @@ const DB = {
   init() {
     // Clean old caches if present
     try {
-      ['rsu_repair_sys_', 'rsu_repair_v2_', 'rsu_repair_v3_', 'rsu_repair_v4_', 'rsu_repair_v5_'].forEach(p => {
+      ['rsu_repair_sys_', 'rsu_repair_v2_', 'rsu_repair_v3_', 'rsu_repair_v4_', 'rsu_repair_v5_', 'rsu_repair_v6_'].forEach(p => {
         if (p !== STORAGE_KEY_PREFIX) {
           Object.keys(localStorage).filter(k => k.startsWith(p)).forEach(k => localStorage.removeItem(k));
         }
@@ -754,13 +807,20 @@ const DB = {
     const isOldData = !existingUsers || !Array.isArray(existingUsers) || !existingUsers.some(u => u.student_id === "6800401");
     if (isOldData) {
       this.set('users', DEFAULT_USERS);
+      this.set('categories', DEFAULT_CATEGORIES);
+      this.set('technician_specialties', DEFAULT_TECHNICIAN_SPECIALTIES);
       this.set('repairs', DEFAULT_REPAIRS);
       this.set('equipment', DEFAULT_EQUIPMENT);
       this.set('plans', DEFAULT_MAINTENANCE_PLANS);
+      this.set('notifications', []);
+      this.seedAssignmentNotifications();
     } else {
+      if (!this.get('categories')) this.set('categories', DEFAULT_CATEGORIES);
+      if (!this.get('technician_specialties')) this.set('technician_specialties', DEFAULT_TECHNICIAN_SPECIALTIES);
       if (!this.get('equipment')) this.set('equipment', DEFAULT_EQUIPMENT);
       if (!this.get('repairs')) this.set('repairs', DEFAULT_REPAIRS);
       if (!this.get('plans')) this.set('plans', DEFAULT_MAINTENANCE_PLANS);
+      if (!this.get('notifications')) this.set('notifications', []);
     }
   },
   isLoggedIn() {
@@ -804,6 +864,42 @@ const DB = {
   },
   getTechnicians() {
     return this.getUsers().filter(u => u.role === ROLE_TECH);
+  },
+  getAdmins() {
+    return this.getUsers().filter(u => u.role === ROLE_ADMIN);
+  },
+  getCategories() {
+    return this.get('categories', DEFAULT_CATEGORIES);
+  },
+  getCategoryName(categoryId) {
+    const c = this.getCategories().find(c => c.category_id === Number(categoryId));
+    return c ? c.category_name : '-';
+  },
+  getSpecialties() {
+    return this.get('technician_specialties', DEFAULT_TECHNICIAN_SPECIALTIES);
+  },
+  getTechnicianCategoryIds(technicianId) {
+    return this.getSpecialties().filter(s => s.technician_id === Number(technicianId)).map(s => s.category_id);
+  },
+  getTechnicianSpecialtyText(technicianId) {
+    const names = this.getTechnicianCategoryIds(technicianId).map(id => this.getCategoryName(id));
+    return names.length ? names.join(', ') : 'ยังไม่กำหนดประเภทงาน';
+  },
+  setTechnicianSpecialties(technicianId, categoryIds) {
+    const others = this.getSpecialties().filter(s => s.technician_id !== Number(technicianId));
+    const mine = [...new Set(categoryIds.map(Number))].map(category_id => ({ technician_id: Number(technicianId), category_id }));
+    this.set('technician_specialties', [...others, ...mine]);
+  },
+  getEquipmentById(equipmentId) {
+    return this.getEquipment().find(e => e.equipment_id === Number(equipmentId)) || null;
+  },
+  // A technician may only take work in a category they are qualified for
+  canHandle(technicianId, categoryId) {
+    const user = this.getUserById(technicianId);
+    return !!user && user.role === ROLE_TECH && this.getTechnicianCategoryIds(technicianId).includes(Number(categoryId));
+  },
+  getQualifiedTechnicians(categoryId) {
+    return this.getTechnicians().filter(t => this.canHandle(t.user_id, categoryId));
   },
   addUser(userData) {
     const users = this.getUsers();
@@ -928,6 +1024,8 @@ const DB = {
     const repair = this.getRepairByTicket(ticketNo);
     const tech = this.getUserById(technicianId);
     if (!repair || !tech || repair.status === 'เสร็จสิ้น') return null;
+    const equipment = this.getEquipmentById(repair.equipment_id);
+    if (!equipment || !this.canHandle(tech.user_id, equipment.category_id)) return null;
     const now = ThaiDate.now();
     const timeline = (repair.timeline || []).map(step => {
       if (step.step === 2) {
@@ -938,13 +1036,24 @@ const DB = {
       }
       return step;
     });
-    return this.updateRepair(ticketNo, {
+    const updated = this.updateRepair(ticketNo, {
       technician_id: tech.user_id,
       assigned_date: now.stamp,
       assigned_by: actorName,
       updated_at: now.stamp,
       timeline
     });
+    if (updated && repair.technician_id !== tech.user_id) {
+      this.addNotification({
+        user_id: tech.user_id,
+        type: 'assigned_repair',
+        title: 'ได้รับมอบหมายงานซ่อม',
+        message: `${updated.ticket_no} · ${updated.problem_title} · ${updated.location_text}`,
+        request_id: updated.request_id,
+        ref_key: `assigned_repair:${updated.request_id}:${tech.user_id}:${now.stamp}`
+      });
+    }
+    return updated;
   },
   // Technician updates the work status; keeps timeline, completed_date and equipment status consistent
   updateRepairProgress(ticketNo, { status, note, expected_date, expected_time, repair_image }, actorName) {
@@ -1017,6 +1126,8 @@ const DB = {
     return dates.length ? ThaiDate.format(dates[0]) : null;
   },
   addPlan(plan) {
+    const equipment = this.getEquipmentById(plan.equipment_id);
+    if (!equipment || !this.canHandle(plan.technician_id, equipment.category_id)) return null;
     const list = this.getPlans();
     const newId = list.length > 0 ? Math.max(...list.map(p => p.plan_id)) + 1 : 1;
     const newPlan = {
@@ -1025,6 +1136,14 @@ const DB = {
     };
     list.unshift(newPlan);
     this.set('plans', list);
+    this.addNotification({
+      user_id: newPlan.technician_id,
+      type: 'assigned_plan',
+      title: 'ได้รับมอบหมายแผนบำรุงรักษา',
+      message: `${newPlan.code} · ${newPlan.task} · ${newPlan.equipment_name} · กำหนด ${newPlan.next_due_date}`,
+      plan_id: newPlan.plan_id,
+      ref_key: `assigned_plan:${newPlan.plan_id}`
+    });
     return newPlan;
   },
   updatePlan(planId, data) {
@@ -1043,6 +1162,109 @@ const DB = {
     if (days < 0) return 'เกินกำหนด';
     if (days <= 7) return 'ใกล้ครบกำหนด';
     return 'รอดำเนินการ';
+  },
+  // ---------------------------------------------------------------- Notifications
+  getNotifications() {
+    return this.get('notifications', []);
+  },
+  getNotificationsFor(userId) {
+    return this.getNotifications()
+      .filter(n => n.user_id === Number(userId))
+      .sort((a, b) => (b.created_at > a.created_at ? 1 : -1));
+  },
+  getUnreadCount(userId) {
+    return this.getNotificationsFor(userId).filter(n => !n.is_read).length;
+  },
+  // ref_key makes each event notify a user only once (e.g. one overdue alert per deadline)
+  addNotification({ user_id, type, title, message, request_id = null, plan_id = null, ref_key, created_at, is_read = false }) {
+    const list = this.getNotifications();
+    if (ref_key && list.some(n => n.user_id === user_id && n.ref_key === ref_key)) return null;
+    const notification = {
+      notification_id: list.length ? Math.max(...list.map(n => n.notification_id)) + 1 : 1,
+      user_id, type, title, message, request_id, plan_id,
+      ref_key: ref_key || null,
+      is_read,
+      created_at: created_at || new Date().toISOString()
+    };
+    list.push(notification);
+    this.set('notifications', list);
+    return notification;
+  },
+  markNotificationRead(notificationId) {
+    const list = this.getNotifications();
+    const n = list.find(n => n.notification_id === Number(notificationId));
+    if (n && !n.is_read) {
+      n.is_read = true;
+      this.set('notifications', list);
+    }
+  },
+  markAllNotificationsRead(userId) {
+    const list = this.getNotifications();
+    list.forEach(n => { if (n.user_id === Number(userId)) n.is_read = true; });
+    this.set('notifications', list);
+  },
+  // Deadline = ETA from the technician, or request time + days by priority when no ETA yet
+  getRepairDeadline(repair) {
+    if (repair.expected_date) {
+      const eta = ThaiDate.parseDateTime(repair.expected_date, repair.expected_time || '23:59');
+      if (eta) return eta;
+    }
+    const requested = ThaiDate.parseDateTime(repair.request_date, repair.request_time);
+    if (!requested) return null;
+    requested.setDate(requested.getDate() + (PRIORITY_DUE_DAYS[repair.priority] || 3));
+    return requested;
+  },
+  isRepairOverdue(repair) {
+    if (repair.status === 'เสร็จสิ้น') return false;
+    const deadline = this.getRepairDeadline(repair);
+    return !!deadline && deadline < new Date();
+  },
+  // Create overdue alerts for the responsible technician and every admin (run on each page load)
+  checkOverdue() {
+    const admins = this.getAdmins();
+    this.getRepairs().filter(r => this.isRepairOverdue(r)).forEach(r => {
+      const deadline = this.getRepairDeadline(r);
+      const tech = r.technician_id ? this.getUserById(r.technician_id) : null;
+      const recipients = [...(tech ? [tech] : []), ...admins];
+      recipients.forEach(u => this.addNotification({
+        user_id: u.user_id,
+        type: 'overdue_repair',
+        title: 'งานซ่อมเกินกำหนด',
+        message: `${r.ticket_no} · ${r.problem_title} · กำหนด ${ThaiDate.formatDateTime(deadline)}` +
+          (u.role === ROLE_ADMIN ? ` · ${tech ? `ช่าง ${tech.full_name}` : 'ยังไม่ได้มอบหมายช่าง'}` : ''),
+        request_id: r.request_id,
+        ref_key: `overdue_repair:${r.request_id}:${deadline.toISOString()}`
+      }));
+    });
+    this.getPlans().filter(p => this.getPlanStatus(p) === 'เกินกำหนด').forEach(p => {
+      const tech = this.getUserById(p.technician_id);
+      const recipients = [...(tech ? [tech] : []), ...admins];
+      recipients.forEach(u => this.addNotification({
+        user_id: u.user_id,
+        type: 'overdue_plan',
+        title: 'แผนบำรุงรักษาเกินกำหนด',
+        message: `${p.code} · ${p.task} · ${p.equipment_name} · กำหนด ${p.next_due_date}` +
+          (u.role === ROLE_ADMIN && tech ? ` · ผู้รับผิดชอบ ${tech.full_name}` : ''),
+        plan_id: p.plan_id,
+        ref_key: `overdue_plan:${p.plan_id}:${p.next_due_date}`
+      }));
+    });
+  },
+  // Sample data: technicians already have "assigned" notices for their open jobs
+  seedAssignmentNotifications() {
+    this.getRepairs().filter(r => r.technician_id && r.status !== 'เสร็จสิ้น').forEach(r => {
+      const at = ThaiDate.parseDateTime(r.assigned_date) || new Date();
+      this.addNotification({
+        user_id: r.technician_id,
+        type: 'assigned_repair',
+        title: 'ได้รับมอบหมายงานซ่อม',
+        message: `${r.ticket_no} · ${r.problem_title} · ${r.location_text}`,
+        request_id: r.request_id,
+        ref_key: `assigned_repair:${r.request_id}:${r.technician_id}:seed`,
+        created_at: at.toISOString(),
+        is_read: r.status !== 'รอดำเนินการ'
+      });
+    });
   },
   // Record that maintenance was done today; next due = today + plan frequency
   recordMaintenance(planId, actorName) {

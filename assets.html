@@ -172,12 +172,6 @@
             <div class="filter-group">
               <select class="filter-select" id="assetCategoryFilter" onchange="onAssetFilterChange()">
                 <option value="">ประเภททั้งหมด</option>
-                <option value="ระบบปรับอากาศ">ระบบปรับอากาศ</option>
-                <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
-                <option value="ระบบไฟฟ้า">ระบบไฟฟ้า</option>
-                <option value="ระบบประปา">ระบบประปา</option>
-                <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
-                <option value="อาคารและสถานที่">อาคารและสถานที่</option>
               </select>
 
               <select class="filter-select" id="assetStatusFilter" onchange="onAssetFilterChange()">
@@ -290,14 +284,7 @@
             </div>
             <div class="mb-3">
               <label class="form-label-custom">ประเภท <span class="text-danger">*</span></label>
-              <select class="form-select-custom" id="modalAssetCategory" required>
-                <option value="ระบบปรับอากาศ">ระบบปรับอากาศ</option>
-                <option value="อุปกรณ์สำนักงาน">อุปกรณ์สำนักงาน</option>
-                <option value="ระบบไฟฟ้า">ระบบไฟฟ้า</option>
-                <option value="ระบบประปา">ระบบประปา</option>
-                <option value="คอมพิวเตอร์">คอมพิวเตอร์</option>
-                <option value="อาคารและสถานที่">อาคารและสถานที่</option>
-              </select>
+              <select class="form-select-custom" id="modalAssetCategory" required></select>
             </div>
             <div class="mb-3">
               <label class="form-label-custom">สถานที่ติดตั้ง <span class="text-danger">*</span></label>
@@ -357,6 +344,9 @@
     let assetPage = 1;
 
     document.addEventListener('DOMContentLoaded', () => {
+      const options = DB.getCategories().map(c => `<option value="${c.category_id}">${escapeHtml(c.category_name)}</option>`).join('');
+      document.getElementById('assetCategoryFilter').insertAdjacentHTML('beforeend', options);
+      document.getElementById('modalAssetCategory').innerHTML = options;
       renderEquipmentTable();
     });
 
@@ -378,7 +368,7 @@
           item.asset_no.toLowerCase().includes(search) ||
           item.equipment_name.toLowerCase().includes(search) ||
           (item.location || '').toLowerCase().includes(search);
-        const matchesCat = !cat || item.category === cat;
+        const matchesCat = !cat || item.category_id === Number(cat);
         const matchesStatus = !status || item.status === status;
         const matchesBuilding = !building || item.building === building;
         return matchesSearch && matchesCat && matchesStatus && matchesBuilding;
@@ -422,7 +412,7 @@
               </a>
             </td>
             <td class="fw-medium text-dark">${escapeHtml(item.equipment_name)}</td>
-            <td class="text-secondary">${escapeHtml(item.category)}</td>
+            <td class="text-secondary">${escapeHtml(DB.getCategoryName(item.category_id))}</td>
             <td class="text-secondary">${escapeHtml(item.location)}</td>
             <td><span class="status-badge ${badgeClass}">${escapeHtml(item.status)}</span></td>
             <td class="text-muted font-numeric">${escapeHtml(getDueDate(item))}</td>
@@ -482,7 +472,7 @@
       }
       const assetNo = document.getElementById('modalAssetNo').value.trim().toUpperCase();
       const name = document.getElementById('modalAssetName').value.trim();
-      const category = document.getElementById('modalAssetCategory').value;
+      const categoryId = Number(document.getElementById('modalAssetCategory').value);
       const location = document.getElementById('modalAssetLocation').value.trim();
       const building = document.getElementById('modalAssetBuilding').value;
       const status = document.getElementById('modalAssetStatus').value;
@@ -495,7 +485,7 @@
       DB.addEquipment({
         asset_no: assetNo,
         equipment_name: name,
-        category: category,
+        category_id: categoryId,
         location: location,
         location_full: `${building} · ${location}`,
         building: building,
@@ -515,7 +505,7 @@
 
     function exportAssets() {
       const rows = getFilteredEquipment().map(e => [
-        e.asset_no, e.equipment_name, e.category, e.location_full || e.location, e.status, getDueDate(e)
+        e.asset_no, e.equipment_name, DB.getCategoryName(e.category_id), e.location_full || e.location, e.status, getDueDate(e)
       ]);
       exportCSV('asset-registry.csv', ['รหัสครุภัณฑ์', 'ชื่อครุภัณฑ์', 'ประเภท', 'สถานที่ติดตั้ง', 'สถานะ', 'บำรุงรักษาครั้งถัดไป'], rows);
     }

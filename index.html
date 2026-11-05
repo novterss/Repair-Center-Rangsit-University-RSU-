@@ -314,9 +314,11 @@
         </div>
         <form id="assignTechForm" onsubmit="handleAssignSubmit(event)">
           <div class="modal-body p-4">
-            <div class="mb-3 small text-muted font-numeric" id="assignTicketInfo"></div>
+            <div class="mb-1 small text-muted" id="assignTicketInfo"></div>
+            <div class="mb-3 small">ประเภทงาน: <strong id="assignCategory">-</strong></div>
             <label class="form-label-custom">ช่างเทคนิค <span class="text-danger">*</span></label>
             <select class="form-select-custom" id="assignTechSelect" required></select>
+            <div class="form-text" id="assignTechHint">แสดงเฉพาะช่างที่รับงานประเภทนี้ได้</div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
@@ -425,7 +427,7 @@
             <td class="fw-medium text-dark">${escapeHtml(item.problem_title)}</td>
             <td class="text-secondary">${escapeHtml(item.location_text)}</td>
             <td>${getPriorityBadge(item.priority)}</td>
-            <td>${getStatusBadge(item.status)}</td>
+            <td>${getStatusBadge(item.status)}${DB.isRepairOverdue(item) ? '<span class="overdue-tag">เกินกำหนด</span>' : ''}</td>
             <td class="${techName === 'รอมอบหมาย' ? 'text-muted' : 'text-dark fw-medium'}">${escapeHtml(techName)}</td>
             <td class="text-muted font-numeric">${escapeHtml(item.request_date)}</td>
             ${actionCell}
@@ -459,11 +461,21 @@
       if (!repair) return;
       assignTicketNo = ticketNo;
       document.getElementById('assignTicketInfo').textContent = `${repair.ticket_no} · ${repair.problem_title} · ${repair.location_text}`;
-      document.getElementById('assignTechSelect').innerHTML = DB.getTechnicians().map(t => `
-        <option value="${t.user_id}" ${t.user_id === repair.technician_id ? 'selected' : ''}>
-          ${escapeHtml(t.full_name)}${t.title_role ? ` · ${escapeHtml(t.title_role)}` : ''}
-        </option>
-      `).join('');
+
+      // Only technicians qualified for the equipment's category can be chosen
+      const equipment = DB.getEquipmentById(repair.equipment_id);
+      const categoryId = equipment ? equipment.category_id : null;
+      const qualified = categoryId ? DB.getQualifiedTechnicians(categoryId) : [];
+      document.getElementById('assignCategory').textContent = categoryId ? DB.getCategoryName(categoryId) : '-';
+      const select = document.getElementById('assignTechSelect');
+      select.innerHTML = qualified.length === 0
+        ? `<option value="" disabled selected>ไม่มีช่างที่รับงานประเภทนี้</option>`
+        : qualified.map(t => `
+          <option value="${t.user_id}" ${t.user_id === repair.technician_id ? 'selected' : ''}>
+            ${escapeHtml(t.full_name)}${t.title_role ? ` · ${escapeHtml(t.title_role)}` : ''}
+          </option>
+        `).join('');
+      select.disabled = qualified.length === 0;
       new bootstrap.Modal(document.getElementById('assignTechModal')).show();
     }
 
@@ -477,9 +489,9 @@
       const updated = DB.assignTechnician(assignTicketNo, techId, DB.getCurrentUser().full_name);
       bootstrap.Modal.getInstance(document.getElementById('assignTechModal')).hide();
       if (updated) {
-        showToast(`มอบหมาย ${updated.ticket_no} ให้ ${DB.getUserById(techId).full_name} แล้ว`, 'success');
+        showToast(`มอบหมาย ${updated.ticket_no} ให้ ${DB.getUserById(techId).full_name} แล้ว · ส่งแจ้งเตือนถึงช่างแล้ว`, 'success');
       } else {
-        showToast('ไม่สามารถมอบหมายงานนี้ได้', 'danger');
+        showToast('มอบหมายไม่ได้: ช่างคนนี้ไม่ได้รับงานประเภทนี้ หรืองานปิดไปแล้ว', 'danger');
       }
       renderDashboardTable();
     }

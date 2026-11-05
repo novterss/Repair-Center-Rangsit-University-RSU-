@@ -106,11 +106,19 @@
             </button>
             <button type="button" class="test-account-btn" onclick="setQuickLogin(2)">
               <span>ธนากร <span class="font-numeric text-muted">6803317</span></span>
-              <span class="test-account-role">ช่างเทคนิค</span>
+              <span class="test-account-role">ช่างแอร์</span>
             </button>
             <button type="button" class="test-account-btn" onclick="setQuickLogin(4)">
               <span>ณภัทร <span class="font-numeric text-muted">6803498</span></span>
-              <span class="test-account-role">ช่างเทคนิค</span>
+              <span class="test-account-role">ช่างไฟฟ้า-ประปา</span>
+            </button>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(6)">
+              <span>ประเสริฐ <span class="text-muted">· บัญชีตัวอย่าง</span></span>
+              <span class="test-account-role">ช่างคอมพิวเตอร์</span>
+            </button>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(7)">
+              <span>สมศักดิ์ <span class="text-muted">· บัญชีตัวอย่าง</span></span>
+              <span class="test-account-role">ช่างอาคาร</span>
             </button>
             <button type="button" class="test-account-btn" onclick="setQuickLogin(3)">
               <span>สรวิชญ์ <span class="font-numeric text-muted">6803162</span></span>
@@ -161,10 +169,15 @@
             </div>
             <div class="mb-3">
               <label class="form-label-custom">บทบาทในระบบ <span class="text-danger">*</span></label>
-              <select class="form-select-custom" id="regRole" required>
+              <select class="form-select-custom" id="regRole" required onchange="toggleSpecialtyField()">
                 <option value="เจ้าหน้าที่">อาจารย์ / เจ้าหน้าที่ (ผู้แจ้งซ่อมและติดตามงาน)</option>
                 <option value="ช่างเทคนิค">ช่างเทคนิคประจำอาคาร (ฝ่ายอาคารฯ ตึก 13)</option>
               </select>
+            </div>
+            <div class="mb-3" id="regSpecialtyGroup" style="display: none;">
+              <label class="form-label-custom">ประเภทงานที่รับได้ <span class="text-danger">*</span></label>
+              <div class="d-grid gap-1" id="regSpecialtyOptions"></div>
+              <div class="form-text">ระบบจะมอบหมายงานให้เฉพาะประเภทที่เลือก</div>
             </div>
             <div class="mb-3">
               <label class="form-label-custom">อีเมลมหาวิทยาลัยรังสิต (@rsu.ac.th) <span class="text-danger">*</span></label>
@@ -271,6 +284,21 @@
       modal.show();
     }
 
+    // Technicians must say which work categories they can take
+    function toggleSpecialtyField() {
+      const isTech = document.getElementById('regRole').value === ROLE_TECH;
+      const group = document.getElementById('regSpecialtyGroup');
+      const options = document.getElementById('regSpecialtyOptions');
+      if (!options.children.length) {
+        options.innerHTML = DB.getCategories().map(c => `
+          <label class="form-check small mb-0">
+            <input class="form-check-input" type="checkbox" name="regSpecialty" value="${c.category_id}">
+            <span class="form-check-label">${escapeHtml(c.category_name)}</span>
+          </label>`).join('');
+      }
+      group.style.display = isTech ? 'block' : 'none';
+    }
+
     function handleRegisterSubmit(e) {
       e.preventDefault();
       const fullName = document.getElementById('regFullName').value.trim();
@@ -292,6 +320,12 @@
         return;
       }
 
+      const specialtyIds = [...document.querySelectorAll('input[name="regSpecialty"]:checked')].map(i => Number(i.value));
+      if (role === ROLE_TECH && specialtyIds.length === 0) {
+        alert('กรุณาเลือกประเภทงานที่รับได้อย่างน้อย 1 ประเภท');
+        return;
+      }
+
       const newUser = DB.addUser({
         email: email,
         password: password,
@@ -300,6 +334,9 @@
         department: department,
         role: role
       });
+      if (role === ROLE_TECH) {
+        DB.setTechnicianSpecialties(newUser.user_id, specialtyIds);
+      }
 
       const modalEl = document.getElementById('registerUserModal');
       const modal = bootstrap.Modal.getInstance(modalEl);

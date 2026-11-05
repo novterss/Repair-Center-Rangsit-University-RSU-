@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initUserDropdown();
   applyRoleVisibility();
   highlightActiveMenu();
+  initNotifications();
 });
 
 function initAppShell() {
@@ -153,6 +154,98 @@ function highlightActiveMenu() {
       }
     }
   });
+}
+
+// ---------------------------------------------------------------- Notifications (bell in the topbar)
+// Where a notification leads: technicians go to their task list, others to the ticket page
+function getNotificationLink(n, user) {
+  if (n.plan_id) return 'maintenance-plans.html';
+  const repair = DB.getRepairs().find(r => r.request_id === n.request_id);
+  if (!repair) return null;
+  const ticket = encodeURIComponent(repair.ticket_no);
+  return user.role === ROLE_TECH ? `assigned-tasks.html?ticket=${ticket}` : `track-repair.html?ticket=${ticket}`;
+}
+
+function initNotifications() {
+  const btn = document.querySelector('.notification-btn');
+  const user = DB.getCurrentUser();
+  if (!btn || !user) return;
+
+  DB.checkOverdue();
+
+  // Turn the bell button into a Bootstrap dropdown with a count badge
+  btn.removeAttribute('onclick');
+  btn.setAttribute('data-bs-toggle', 'dropdown');
+  btn.setAttribute('data-bs-auto-close', 'outside');
+  btn.setAttribute('aria-expanded', 'false');
+  const wrap = document.createElement('div');
+  wrap.className = 'dropdown';
+  btn.parentNode.insertBefore(wrap, btn);
+  wrap.appendChild(btn);
+  const badge = document.createElement('span');
+  badge.className = 'notification-count';
+  btn.appendChild(badge);
+  const menu = document.createElement('div');
+  menu.className = 'dropdown-menu dropdown-menu-end notification-menu';
+  wrap.appendChild(menu);
+
+  menu.addEventListener('click', (e) => {
+    const markAll = e.target.closest('[data-mark-all]');
+    if (markAll) {
+      e.preventDefault();
+      DB.markAllNotificationsRead(user.user_id);
+      renderNotifications();
+      return;
+    }
+    const item = e.target.closest('[data-notification-id]');
+    if (item) DB.markNotificationRead(item.dataset.notificationId);
+  });
+
+  renderNotifications();
+
+  // One reminder per browser session when there is something unread
+  const unread = DB.getUnreadCount(user.user_id);
+  let shown = false;
+  try { shown = sessionStorage.getItem('rsu_notify_shown') === String(user.user_id); } catch (e) {}
+  if (unread > 0 && !shown) {
+    showToast(`มีการแจ้งเตือนที่ยังไม่ได้อ่าน ${unread} รายการ`, 'info');
+    try { sessionStorage.setItem('rsu_notify_shown', String(user.user_id)); } catch (e) {}
+  }
+}
+
+function renderNotifications() {
+  const user = DB.getCurrentUser();
+  const menu = document.querySelector('.notification-menu');
+  const badge = document.querySelector('.notification-count');
+  if (!user || !menu) return;
+
+  const list = DB.getNotificationsFor(user.user_id).slice(0, 30);
+  const unread = list.filter(n => !n.is_read).length;
+  if (badge) {
+    badge.textContent = unread > 9 ? '9+' : String(unread);
+    badge.style.display = unread ? 'flex' : 'none';
+  }
+
+  const items = list.length === 0
+    ? `<div class="notification-empty">ยังไม่มีการแจ้งเตือน</div>`
+    : list.map(n => {
+        const link = getNotificationLink(n, user);
+        const kind = n.type.startsWith('overdue') ? 'overdue' : 'assigned';
+        return `
+          <a class="notification-item ${n.is_read ? '' : 'unread'} ${kind}" href="${link ? escapeHtml(link) : 'javascript:void(0)'}" data-notification-id="${n.notification_id}">
+            <div class="notification-title">${escapeHtml(n.title)}</div>
+            <div class="notification-message">${escapeHtml(n.message)}</div>
+            <div class="notification-time">${escapeHtml(ThaiDate.formatDateTime(new Date(n.created_at)))}</div>
+          </a>`;
+      }).join('');
+
+  menu.innerHTML = `
+    <div class="notification-header">
+      <span>การแจ้งเตือน</span>
+      ${unread ? `<a href="#" data-mark-all>อ่านทั้งหมด</a>` : ''}
+    </div>
+    <div class="notification-list">${items}</div>
+  `;
 }
 
 // Global Toast helper

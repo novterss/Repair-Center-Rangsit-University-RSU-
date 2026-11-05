@@ -375,10 +375,16 @@
       const sBadge = document.getElementById('detailStatusBadge');
       sBadge.className = `status-badge ${repair.status === 'กำลังดำเนินการ' ? 'status-in-progress' : repair.status === 'เสร็จสิ้น' ? 'status-completed' : 'status-pending'}`;
       sBadge.textContent = `${repair.status}`;
+      const oldTag = document.getElementById('detailOverdueTag');
+      if (oldTag) oldTag.remove();
+      if (DB.isRepairOverdue(repair)) {
+        const deadline = DB.getRepairDeadline(repair);
+        sBadge.insertAdjacentHTML('afterend', `<span class="overdue-tag" id="detailOverdueTag" title="กำหนด ${escapeHtml(ThaiDate.formatDateTime(deadline))}">เกินกำหนด</span>`);
+      }
 
       // Equipment
       const eq = equipments.find(e => e.equipment_id === repair.equipment_id);
-      document.getElementById('detailEquipmentName').textContent = eq ? `${eq.asset_no} · ${eq.equipment_name}` : '-';
+      document.getElementById('detailEquipmentName').textContent = eq ? `${eq.asset_no} · ${eq.equipment_name} (${DB.getCategoryName(eq.category_id)})` : '-';
 
       // Requester
       const requester = users.find(u => u.user_id === repair.requester_id);
