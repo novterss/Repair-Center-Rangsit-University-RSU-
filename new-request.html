@@ -181,7 +181,7 @@
 
         <div class="topbar-right">
           <div class="topbar-date d-none d-md-flex">
-            <span>28 ตุลาคม 2569</span>
+            <span id="topbarTodayDate"></span>
           </div>
 
           <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
@@ -194,7 +194,7 @@
             <div class="user-profile-menu dropdown-toggle" id="userProfileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
               <div class="user-avatar-initials" id="topbarUserAvatar">ศพ</div>
               <div class="user-info-text d-none d-sm-block">
-                <div class="user-name" id="topbarUserName">ศิริพร ใจดี</div>
+                <div class="user-name" id="topbarUserName">-</div>
                 <div class="user-role" id="topbarUserRole">เจ้าหน้าที่</div>
               </div>
               <i class="bi bi-chevron-down text-muted small ms-1"></i>
@@ -259,10 +259,14 @@
                   </div>
                 </div>
 
-                <!-- Row 2: Problem Description -->
+                <!-- Row 2: Problem Title & Description -->
+                <div class="mb-3">
+                  <label class="form-label-custom">หัวข้อปัญหา <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control-custom" id="problemTitle" required maxlength="80" placeholder="สรุปอาการสั้น ๆ เช่น เครื่องปรับอากาศไม่เย็น">
+                </div>
                 <div class="mb-4">
                   <label class="form-label-custom">รายละเอียดปัญหา <span class="text-danger">*</span></label>
-                  <textarea class="form-control-custom" id="problemDetail" rows="4" required placeholder="อธิบายอาการที่พบ เช่น เครื่องปรับอากาศไม่เย็น มีแต่ลมออก หรือน้ำรั่วซึม">เครื่องปรับอากาศไม่เย็น มีแต่ลมออก แม้ปรับอุณหภูมิลงแล้ว เริ่มพบปัญหาช่วงเช้าวันนี้ ห้องมีการประชุมเวลา 13:00 น.</textarea>
+                  <textarea class="form-control-custom" id="problemDetail" rows="4" required placeholder="อธิบายอาการที่พบ เช่น เครื่องปรับอากาศไม่เย็น มีแต่ลมออก หรือน้ำรั่วซึม"></textarea>
                 </div>
 
                 <!-- Row 3: Priority Selector Radio Cards -->
@@ -302,14 +306,14 @@
                     <i class="bi bi-cloud-arrow-up upload-icon"></i>
                     <div class="upload-title">เลือกไฟล์ หรือลากไฟล์มาวางที่นี่</div>
                     <div class="upload-hint">รูปภาพหรือเอกสารพีดีเอฟ · สูงสุด 5 ไฟล์ ไฟล์ละไม่เกิน 10 เมกะไบต์</div>
-                    <input type="file" id="hiddenFileInput" style="display: none;" onchange="handleFileSelected(this)">
+                    <input type="file" id="hiddenFileInput" style="display: none;" accept="image/*,application/pdf" onchange="handleFileSelected(this)">
                   </div>
 
                   <!-- Uploaded File Card (Matches GUI-3) -->
                   <div class="uploaded-file-item" id="uploadedFileItem">
                     <div class="file-item-info">
                       <i class="bi bi-file-earmark-image"></i>
-                      <span class="file-item-name" id="uploadedFileName">แอร์ห้องประชุม302.jpg · 2.4 เมกะไบต์</span>
+                      <span class="file-item-name" id="uploadedFileName"></span>
                     </div>
                     <div class="file-item-actions">
                       <i class="bi bi-check-circle-fill file-success-icon"></i>
@@ -344,15 +348,15 @@
               <h3 class="info-card-title">ข้อมูลผู้แจ้ง</h3>
               <div class="user-info-row">
                 <div class="user-info-label">ชื่อผู้แจ้ง</div>
-                <div class="user-info-value" id="cardRequesterName">ศิริพร ใจดี</div>
+                <div class="user-info-value" id="cardRequesterName">-</div>
               </div>
               <div class="user-info-row">
                 <div class="user-info-label">หน่วยงาน</div>
-                <div class="user-info-value" id="cardRequesterDept">สำนักปลัดเทศบาล</div>
+                <div class="user-info-value" id="cardRequesterDept">-</div>
               </div>
               <div class="user-info-row">
                 <div class="user-info-label">หมายเลขติดต่อ</div>
-                <div class="user-info-value" id="cardRequesterPhone">ต่อ 1302</div>
+                <div class="user-info-value" id="cardRequesterPhone">-</div>
               </div>
             </div>
 
@@ -430,10 +434,14 @@
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
+    // Images up to this size are kept (as data URL) so they can be previewed later; larger files keep only name/size
+    const MAX_PREVIEW_BYTES = 1024 * 1024;
+
     document.addEventListener('DOMContentLoaded', () => {
       populateEquipmentOptions();
       populateRequesterCard();
       initDragAndDrop();
+      document.getElementById('uploadedFileItem').style.display = 'none';
     });
 
     function initDragAndDrop() {
@@ -457,13 +465,12 @@
       });
 
       dropzone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
+        const files = e.dataTransfer.files;
         if (files && files.length > 0) {
-          const file = files[0];
-          const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-          document.getElementById('uploadedFileName').textContent = `${file.name} · ${sizeMb} เมกะไบต์`;
-          document.getElementById('uploadedFileItem').style.display = 'flex';
+          // Put the dropped file into the file input so submit reads it the same way as a picked file
+          const input = document.getElementById('hiddenFileInput');
+          input.files = files;
+          handleFileSelected(input);
         }
       }, false);
     }
@@ -472,19 +479,22 @@
       const user = DB.getCurrentUser();
       if (user) {
         document.getElementById('cardRequesterName').textContent = user.full_name;
-        document.getElementById('cardRequesterDept').textContent = user.department;
-        document.getElementById('cardRequesterPhone').textContent = user.phone;
+        document.getElementById('cardRequesterDept').textContent = user.department || '-';
+        document.getElementById('cardRequesterPhone').textContent = user.phone || '-';
       }
     }
 
     function populateEquipmentOptions() {
       const equipments = DB.getEquipment();
       const select = document.getElementById('selectEquipment');
+      // ?equipment=<id> preselects the item (from the asset registry "แจ้งซ่อมครุภัณฑ์นี้")
+      const requestedId = Number(new URLSearchParams(window.location.search).get('equipment'));
+      const preselectId = equipments.some(e => e.equipment_id === requestedId) ? requestedId : null;
 
-      select.innerHTML = `<option value="" disabled>เลือกครุภัณฑ์ที่พบปัญหา</option>` + 
-        equipments.map((eq, idx) => `
-          <option value="${eq.equipment_id}" ${eq.asset_no === 'AC-003' ? 'selected' : ''}>
-            ${eq.asset_no} · ${eq.equipment_name}
+      select.innerHTML = `<option value="" disabled ${preselectId ? '' : 'selected'}>เลือกครุภัณฑ์ที่พบปัญหา</option>` +
+        equipments.map(eq => `
+          <option value="${eq.equipment_id}" ${eq.equipment_id === preselectId ? 'selected' : ''}>
+            ${escapeHtml(eq.asset_no)} · ${escapeHtml(eq.equipment_name)}
           </option>
         `).join('');
 
@@ -498,7 +508,7 @@
       const equipments = DB.getEquipment();
       const selectedEq = equipments.find(e => e.equipment_id === eqId);
 
-      if (selectedEq) {
+      if (selectedEq && selectedEq.location_full) {
         const locationSelect = document.getElementById('inputLocation');
         // Match option or add if not present
         let found = false;
@@ -523,11 +533,14 @@
       radio.closest('.priority-card-label').classList.add('selected');
     }
 
+    function formatFileSize(bytes) {
+      return `${(bytes / (1024 * 1024)).toFixed(1)} เมกะไบต์`;
+    }
+
     function handleFileSelected(input) {
       if (input.files && input.files[0]) {
         const file = input.files[0];
-        const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
-        document.getElementById('uploadedFileName').textContent = `${file.name} · ${sizeMb} เมกะไบต์`;
+        document.getElementById('uploadedFileName').textContent = `${file.name} · ${formatFileSize(file.size)}`;
         document.getElementById('uploadedFileItem').style.display = 'flex';
       }
     }
@@ -537,36 +550,68 @@
       document.getElementById('uploadedFileItem').style.display = 'none';
     }
 
-    function handleNewRepairSubmit(e) {
-      e.preventDefault();
-      const eqSelect = document.getElementById('selectEquipment');
-      const eqId = Number(eqSelect.value);
-      const equipments = DB.getEquipment();
-      const eq = equipments.find(item => item.equipment_id === eqId);
+    function readFileAsDataURL(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(file);
+      });
+    }
 
+    async function handleNewRepairSubmit(e) {
+      e.preventDefault();
+      const currentUser = DB.getCurrentUser();
+      if (!currentUser) {
+        DB.logout();
+        return;
+      }
+
+      const eqId = Number(document.getElementById('selectEquipment').value);
       const locationVal = document.getElementById('inputLocation').value;
+      const titleVal = document.getElementById('problemTitle').value.trim();
       const problemVal = document.getElementById('problemDetail').value.trim();
       const priorityVal = document.querySelector('input[name="priorityOption"]:checked').value;
-      const currentUser = DB.getCurrentUser();
 
-      const newRepair = DB.addRepair({
-        requester_id: currentUser ? currentUser.user_id : 1,
-        requester_name: currentUser ? currentUser.full_name : "ศิริพร ใจดี",
+      if (!eqId) {
+        showToast('กรุณาเลือกครุภัณฑ์ที่พบปัญหา', 'danger');
+        return;
+      }
+
+      const file = document.getElementById('hiddenFileInput').files[0] || null;
+      let imageData = null;
+      if (file && file.type.startsWith('image/') && file.size <= MAX_PREVIEW_BYTES) {
+        imageData = await readFileAsDataURL(file);
+      }
+
+      const request = {
+        requester_id: currentUser.user_id,
+        requester_name: currentUser.full_name,
         equipment_id: eqId,
-        problem_title: eq ? eq.equipment_name.split(' ')[0] + ' มีปัญหา' : problemVal.substring(0, 25),
+        problem_title: titleVal,
         problem_detail: problemVal,
-        location_text: locationVal.split(' · ').pop(),
+        location_text: locationVal.split(' · ').filter((part, i, arr) => i === 0 || i === arr.length - 1).join(' '),
         location_detail: locationVal,
         priority: priorityVal,
         status: "รอดำเนินการ",
-        image: "แอร์ห้องประชุม302.jpg",
-        image_size: "2.4 เมกะไบต์"
-      });
+        image: file ? file.name : null,
+        image_size: file ? formatFileSize(file.size) : null,
+        image_type: file ? file.type : null,
+        image_data: imageData
+      };
+
+      let newRepair;
+      try {
+        newRepair = DB.addRepair(request);
+      } catch (err) {
+        // localStorage full: save without the image preview
+        newRepair = DB.addRepair({ ...request, image_data: null });
+      }
 
       showToast(`ส่งคำขอแจ้งซ่อมสำเร็จ! รหัสใบแจ้งซ่อม: ${newRepair.ticket_no}`, 'success');
-      
+
       setTimeout(() => {
-        window.location.href = `track-repair.html?ticket=${newRepair.ticket_no}`;
+        window.location.href = `track-repair.html?ticket=${encodeURIComponent(newRepair.ticket_no)}`;
       }, 1200);
     }
   </script>

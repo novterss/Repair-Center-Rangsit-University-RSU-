@@ -169,7 +169,7 @@
 
         <div class="topbar-right">
           <div class="topbar-date d-none d-md-flex">
-            <span>28 ตุลาคม 2569</span>
+            <span id="topbarTodayDate"></span>
           </div>
 
           <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
@@ -219,15 +219,15 @@
                 <div class="card-title-wrap">
                   <h2 class="card-header-title">รายการงานของฉัน</h2>
                 </div>
-                <span class="text-muted small fw-medium" id="myTaskStaffName">ธนากร ยั่งยืน (6803317)</span>
+                <span class="text-muted small fw-medium" id="myTaskStaffName"></span>
               </div>
 
               <!-- Filter Pills & Search -->
               <div class="p-3 border-bottom bg-light">
                 <div class="task-filter-pill-group">
-                  <button class="task-filter-pill active" id="tabAll" onclick="setTaskFilter('all')">ทั้งหมด 3</button>
-                  <button class="task-filter-pill" id="tabPending" onclick="setTaskFilter('pending')">ยังไม่เสร็จ 2</button>
-                  <button class="task-filter-pill" id="tabDone" onclick="setTaskFilter('done')">เสร็จสิ้น 1</button>
+                  <button class="task-filter-pill active" id="tabAll" onclick="setTaskFilter('all')">ทั้งหมด</button>
+                  <button class="task-filter-pill" id="tabPending" onclick="setTaskFilter('pending')">ยังไม่เสร็จ</button>
+                  <button class="task-filter-pill" id="tabDone" onclick="setTaskFilter('done')">เสร็จสิ้น</button>
                 </div>
 
                 <div class="search-input-wrap w-100" style="max-width: none;">
@@ -275,7 +275,6 @@
                 <div>
                   <h2 class="card-header-title">อัปเดตสถานะงาน</h2>
                   <div class="text-muted small mt-1 font-numeric" id="formCurrentTaskTitle">
-                    RQ-691028-014 · เครื่องปรับอากาศไม่เย็น
                   </div>
                 </div>
               </div>
@@ -284,7 +283,7 @@
                 <!-- Location Info Badge -->
                 <div class="location-badge-box">
                   <i class="bi bi-geo-alt-fill text-primary"></i>
-                  <span id="formCurrentLocation">ตึก 1 อาคารอาทิตย์อุไรรัตน์ · ชั้น 3 ห้องประชุม 302</span>
+                  <span id="formCurrentLocation">-</span>
                 </div>
 
                 <form id="updateTaskStatusForm" onsubmit="handleUpdateTaskSubmit(event)">
@@ -301,7 +300,7 @@
                   <!-- Repair Note Detail -->
                   <div class="mb-3">
                     <label class="form-label-custom">รายละเอียดการดำเนินงาน <span class="text-danger">*</span></label>
-                    <textarea class="form-control-custom" id="taskNoteText" rows="4" required placeholder="ระบุสิ่งที่ได้ตรวจสอบ หรือขั้นตอนการซ่อม">ตรวจพบสารทำความเย็นรั่วบริเวณข้อต่อ กำลังซ่อมจุดรั่วและเติมสารทำความเย็น จากนั้นจะทดสอบระบบอีกครั้ง</textarea>
+                    <textarea class="form-control-custom" id="taskNoteText" rows="4" required placeholder="ระบุสิ่งที่ได้ตรวจสอบ หรือขั้นตอนการซ่อม"></textarea>
                   </div>
 
                   <!-- Estimated Completion Date & Time -->
@@ -310,14 +309,14 @@
                       <label class="form-label-custom">วันที่คาดว่าจะเสร็จ</label>
                       <div class="input-icon-group">
                         <i class="bi bi-calendar3 input-icon-left"></i>
-                        <input type="text" id="taskExpectedDate" class="form-control" value="28 ต.ค. 2569">
+                        <input type="date" id="taskExpectedDate" class="form-control">
                       </div>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label-custom">เวลา</label>
                       <div class="input-icon-group">
                         <i class="bi bi-clock input-icon-left"></i>
-                        <input type="text" id="taskExpectedTime" class="form-control" value="12:00 น.">
+                        <input type="time" id="taskExpectedTime" class="form-control">
                       </div>
                     </div>
                   </div>
@@ -391,13 +390,28 @@
   <script src="js/app.js"></script>
   <script>
     let currentFilter = 'all';
-    let selectedTicketNo = 'RQ-691028-014';
+    let selectedTicketNo = null;
 
     document.addEventListener('DOMContentLoaded', () => {
-      // If not technician, let user know or allow demo
+      const user = DB.getCurrentUser();
+      if (!user) return;
+      document.getElementById('myTaskStaffName').textContent = user.role === ROLE_ADMIN
+        ? 'งานที่มอบหมายแล้วทั้งหมด (ผู้ดูแลระบบ)'
+        : `${user.full_name}${user.student_id ? ` (${user.student_id})` : ''}`;
+      const first = getMyTasks()[0];
+      selectedTicketNo = first ? first.ticket_no : null;
       renderTechnicianTasks();
       loadSelectedTaskIntoForm(selectedTicketNo);
     });
+
+    // Technicians see only their own jobs; admins see every assigned job
+    function getMyTasks() {
+      const user = DB.getCurrentUser();
+      const assigned = DB.getRepairs().filter(r => r.technician_id);
+      if (!user) return [];
+      if (user.role === ROLE_ADMIN) return assigned;
+      return assigned.filter(r => r.technician_id === user.user_id);
+    }
 
     function setTaskFilter(type) {
       currentFilter = type;
@@ -409,13 +423,16 @@
     }
 
     function renderTechnicianTasks() {
-      const repairs = DB.getRepairs();
       const tbody = document.getElementById('technicianTasksTbody');
       const search = document.getElementById('technicianTaskSearch').value.toLowerCase().trim();
+      const myTasks = getMyTasks();
 
-      // Show tasks assigned to technician (user 2 Somchai by default or all technicians for demo)
-      let list = repairs.filter(r => r.technician_id === 2 || r.technician_id === 4 || r.technician_id === 5);
+      const doneCount = myTasks.filter(r => r.status === 'เสร็จสิ้น').length;
+      document.getElementById('tabAll').textContent = `ทั้งหมด ${myTasks.length}`;
+      document.getElementById('tabPending').textContent = `ยังไม่เสร็จ ${myTasks.length - doneCount}`;
+      document.getElementById('tabDone').textContent = `เสร็จสิ้น ${doneCount}`;
 
+      let list = myTasks;
       if (currentFilter === 'pending') {
         list = list.filter(r => r.status !== 'เสร็จสิ้น');
       } else if (currentFilter === 'done') {
@@ -423,10 +440,10 @@
       }
 
       if (search) {
-        list = list.filter(r => 
-          r.ticket_no.toLowerCase().includes(search) || 
-          r.problem_title.toLowerCase().includes(search) ||
-          r.location_text.toLowerCase().includes(search)
+        list = list.filter(r =>
+          r.ticket_no.toLowerCase().includes(search) ||
+          (r.problem_title || '').toLowerCase().includes(search) ||
+          (r.location_text || '').toLowerCase().includes(search)
         );
       }
 
@@ -441,14 +458,14 @@
         const sBadgeClass = item.status === 'กำลังดำเนินการ' ? 'status-in-progress' : item.status === 'เสร็จสิ้น' ? 'status-completed' : 'status-pending';
 
         return `
-          <tr class="task-row-item ${isSelected ? 'selected' : ''}" onclick="selectTaskRow('${item.ticket_no}')">
+          <tr class="task-row-item ${isSelected ? 'selected' : ''}" data-ticket="${escapeHtml(item.ticket_no)}" onclick="selectTaskRow(this.dataset.ticket)">
             <td>
-              <div class="fw-semibold text-primary font-numeric">${item.ticket_no}</div>
-              <div class="fw-medium text-dark">${item.problem_title}</div>
-              <div class="text-muted small">${item.location_text}</div>
+              <div class="fw-semibold text-primary font-numeric">${escapeHtml(item.ticket_no)}</div>
+              <div class="fw-medium text-dark">${escapeHtml(item.problem_title)}</div>
+              <div class="text-muted small">${escapeHtml(item.location_text)}</div>
             </td>
-            <td><span class="status-badge ${pBadgeClass}">• ${item.priority}</span></td>
-            <td><span class="status-badge ${sBadgeClass}">• ${item.status}</span></td>
+            <td><span class="status-badge ${pBadgeClass}">• ${escapeHtml(item.priority)}</span></td>
+            <td><span class="status-badge ${sBadgeClass}">• ${escapeHtml(item.status)}</span></td>
           </tr>
         `;
       }).join('');
@@ -460,17 +477,39 @@
       loadSelectedTaskIntoForm(ticketNo);
     }
 
+    function setFormEnabled(enabled) {
+      document.querySelectorAll('#updateTaskStatusForm input, #updateTaskStatusForm select, #updateTaskStatusForm textarea, #updateTaskStatusForm button')
+        .forEach(el => { el.disabled = !enabled; });
+    }
+
+    function clearTaskFile() {
+      document.getElementById('taskHiddenFileInput').value = '';
+      document.getElementById('taskFilePreview').classList.add('d-none');
+    }
+
     function loadSelectedTaskIntoForm(ticketNo) {
-      const repairs = DB.getRepairs();
-      const task = repairs.find(r => r.ticket_no === ticketNo) || repairs[0];
-      if (!task) return;
+      const task = getMyTasks().find(r => r.ticket_no === ticketNo);
+      clearTaskFile();
+      if (!task) {
+        document.getElementById('formCurrentTaskTitle').textContent = 'ยังไม่มีงานที่ได้รับมอบหมาย';
+        document.getElementById('formCurrentLocation').textContent = '-';
+        document.getElementById('taskNoteText').value = '';
+        setFormEnabled(false);
+        return;
+      }
+      setFormEnabled(true);
 
       document.getElementById('formCurrentTaskTitle').textContent = `${task.ticket_no} · ${task.problem_title}`;
       document.getElementById('formCurrentLocation').textContent = task.location_detail || task.location_text;
       document.getElementById('taskStatusSelect').value = task.status;
       document.getElementById('taskNoteText').value = task.repair_note || '';
-      document.getElementById('taskExpectedDate').value = task.expected_date || '28 ต.ค. 2569';
-      document.getElementById('taskExpectedTime').value = task.expected_time || '12:00 น.';
+      const expected = ThaiDate.parse(task.expected_date);
+      document.getElementById('taskExpectedDate').value = expected ? ThaiDate.toISO(expected) : '';
+      document.getElementById('taskExpectedTime').value = (task.expected_time || '').replace(' น.', '');
+      if (task.repair_image) {
+        document.getElementById('taskFileName').textContent = `ไฟล์ที่บันทึกไว้: ${task.repair_image}`;
+        document.getElementById('taskFilePreview').classList.remove('d-none');
+      }
     }
 
     function resetTaskForm() {
@@ -486,32 +525,30 @@
 
     function handleUpdateTaskSubmit(e) {
       e.preventDefault();
-      const newStatus = document.getElementById('taskStatusSelect').value;
-      const newNote = document.getElementById('taskNoteText').value.trim();
-      const newDate = document.getElementById('taskExpectedDate').value;
-      const newTime = document.getElementById('taskExpectedTime').value;
-
-      const currentRepairs = DB.getRepairs();
-      const task = currentRepairs.find(r => r.ticket_no === selectedTicketNo);
-      
-      let updatedTimeline = task.timeline || [];
-      if (newStatus === 'เสร็จสิ้น') {
-        updatedTimeline = updatedTimeline.map(step => {
-          if (step.step === 3 || step.step === 4) return { ...step, status: 'done' };
-          return step;
-        });
+      const user = DB.getCurrentUser();
+      const task = getMyTasks().find(r => r.ticket_no === selectedTicketNo);
+      if (!user || !task) {
+        showToast('ไม่พบงานนี้ในรายการของคุณ', 'danger');
+        return;
       }
 
-      DB.updateRepair(selectedTicketNo, {
+      const newStatus = document.getElementById('taskStatusSelect').value;
+      const newNote = document.getElementById('taskNoteText').value.trim();
+      const dateValue = ThaiDate.fromISO(document.getElementById('taskExpectedDate').value);
+      const timeValue = document.getElementById('taskExpectedTime').value;
+      const file = document.getElementById('taskHiddenFileInput').files[0];
+
+      DB.updateRepairProgress(selectedTicketNo, {
         status: newStatus,
-        repair_note: newNote,
-        expected_date: newDate,
-        expected_time: newTime,
-        timeline: updatedTimeline
-      });
+        note: newNote,
+        expected_date: dateValue ? ThaiDate.format(dateValue) : null,
+        expected_time: timeValue ? `${timeValue} น.` : null,
+        repair_image: file ? file.name : undefined
+      }, user.full_name);
 
       showToast(`บันทึกสถานะงาน ${selectedTicketNo} เรียบร้อยแล้ว`, 'success');
       renderTechnicianTasks();
+      loadSelectedTaskIntoForm(selectedTicketNo);
     }
   </script>
 </body>

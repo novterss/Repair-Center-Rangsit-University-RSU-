@@ -4,7 +4,7 @@
    Data Layer - ERD based storage & LocalStorage Mock DB
    ========================================================================== */
 
-const STORAGE_KEY_PREFIX = 'rsu_repair_v5_';
+const STORAGE_KEY_PREFIX = 'rsu_repair_v6_';
 
 // Initial Mock Database based on ERD and Rangsit University Student Team
 const DEFAULT_USERS = [
@@ -645,6 +645,81 @@ const DEFAULT_MAINTENANCE_PLANS = [
   }
 ];
 
+// Roles
+const ROLE_ADMIN = "ผู้ดูแลระบบ";
+const ROLE_TECH = "ช่างเทคนิค";
+const ROLE_STAFF = "เจ้าหน้าที่";
+
+// Escape text before inserting it into innerHTML / HTML attributes
+function escapeHtml(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Thai date helpers (Buddhist Era, e.g. "28 ต.ค. 2569")
+const THAI_MONTHS_SHORT = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
+const THAI_MONTHS_FULL = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน", "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+
+const ThaiDate = {
+  format(d) {
+    return `${d.getDate()} ${THAI_MONTHS_SHORT[d.getMonth()]} ${d.getFullYear() + 543}`;
+  },
+  formatTime(d) {
+    return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} น.`;
+  },
+  // All the date/time strings a record needs, for "now"
+  now() {
+    const d = new Date();
+    const date = this.format(d);
+    const time = this.formatTime(d);
+    return {
+      date,
+      time,
+      datetime: `${d.getDate()} ${THAI_MONTHS_FULL[d.getMonth()]} ${d.getFullYear() + 543} เวลา ${time}`,
+      stamp: `${date}, ${time}`
+    };
+  },
+  // "27 ต.ค. 2569" -> Date (local midnight); null if it cannot be parsed
+  parse(text) {
+    if (!text) return null;
+    const m = String(text).trim().match(/^(\d{1,2})\s+(\S+)\s+(\d{4})/);
+    if (!m) return null;
+    const month = THAI_MONTHS_SHORT.indexOf(m[2]);
+    if (month === -1) return null;
+    return new Date(Number(m[3]) - 543, month, Number(m[1]));
+  },
+  // Date <-> "YYYY-MM-DD" for <input type="date">
+  toISO(d) {
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  },
+  fromISO(iso) {
+    const m = String(iso || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    return m ? new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3])) : null;
+  },
+  today() {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  },
+  addMonths(d, months) {
+    const r = new Date(d.getFullYear(), d.getMonth() + months, 1);
+    const lastDay = new Date(r.getFullYear(), r.getMonth() + 1, 0).getDate();
+    r.setDate(Math.min(d.getDate(), lastDay));
+    return r;
+  }
+};
+
+// "ทุก 3 เดือน" -> 3, "ทุก 1 ปี" -> 12
+function frequencyToMonths(freq) {
+  const m = String(freq || '').match(/(\d+)\s*(เดือน|ปี)/);
+  if (!m) return 3;
+  return m[2] === 'ปี' ? Number(m[1]) * 12 : Number(m[1]);
+}
+
 // Database API helper object
 const DB = {
   get(key, defaultValue) {
@@ -668,7 +743,7 @@ const DB = {
   init() {
     // Clean old caches if present
     try {
-      ['rsu_repair_sys_', 'rsu_repair_v2_', 'rsu_repair_v3_', 'rsu_repair_v4_'].forEach(p => {
+      ['rsu_repair_sys_', 'rsu_repair_v2_', 'rsu_repair_v3_', 'rsu_repair_v4_', 'rsu_repair_v5_'].forEach(p => {
         if (p !== STORAGE_KEY_PREFIX) {
           Object.keys(localStorage).filter(k => k.startsWith(p)).forEach(k => localStorage.removeItem(k));
         }
@@ -679,7 +754,6 @@ const DB = {
     const isOldData = !existingUsers || !Array.isArray(existingUsers) || !existingUsers.some(u => u.student_id === "6800401");
     if (isOldData) {
       this.set('users', DEFAULT_USERS);
-      this.set('currentUser', DEFAULT_USERS[0]);
       this.set('repairs', DEFAULT_REPAIRS);
       this.set('equipment', DEFAULT_EQUIPMENT);
       this.set('plans', DEFAULT_MAINTENANCE_PLANS);
@@ -687,37 +761,49 @@ const DB = {
       if (!this.get('equipment')) this.set('equipment', DEFAULT_EQUIPMENT);
       if (!this.get('repairs')) this.set('repairs', DEFAULT_REPAIRS);
       if (!this.get('plans')) this.set('plans', DEFAULT_MAINTENANCE_PLANS);
-      if (!this.get('currentUser')) this.set('currentUser', DEFAULT_USERS[0]);
     }
   },
   isLoggedIn() {
-    return localStorage.getItem(STORAGE_KEY_PREFIX + 'is_logged_in') === 'true';
+    return localStorage.getItem(STORAGE_KEY_PREFIX + 'is_logged_in') === 'true' && !!this.getCurrentUser();
   },
   setLoggedIn(status) {
     if (status) {
       localStorage.setItem(STORAGE_KEY_PREFIX + 'is_logged_in', 'true');
     } else {
       localStorage.removeItem(STORAGE_KEY_PREFIX + 'is_logged_in');
+      localStorage.removeItem(STORAGE_KEY_PREFIX + 'currentUserId');
     }
   },
   logout() {
     this.setLoggedIn(false);
     window.location.href = 'login.html';
   },
+  // Always read the user fresh from the users table so changes (e.g. password reset) are reflected
   getCurrentUser() {
-    return this.get('currentUser', DEFAULT_USERS[0]);
+    const id = Number(localStorage.getItem(STORAGE_KEY_PREFIX + 'currentUserId'));
+    if (!id) return null;
+    return this.getUsers().find(u => u.user_id === id) || null;
   },
   setCurrentUser(userId) {
-    const users = this.get('users', DEFAULT_USERS);
-    const user = users.find(u => u.user_id === Number(userId));
+    const user = this.getUsers().find(u => u.user_id === Number(userId));
     if (user) {
-      this.set('currentUser', user);
+      localStorage.setItem(STORAGE_KEY_PREFIX + 'currentUserId', String(user.user_id));
       return user;
     }
     return null;
   },
+  hasRole(...roles) {
+    const user = this.getCurrentUser();
+    return !!user && roles.includes(user.role);
+  },
   getUsers() {
     return this.get('users', DEFAULT_USERS);
+  },
+  getUserById(id) {
+    return this.getUsers().find(u => u.user_id === Number(id)) || null;
+  },
+  getTechnicians() {
+    return this.getUsers().filter(u => u.role === ROLE_TECH);
   },
   addUser(userData) {
     const users = this.getUsers();
@@ -732,20 +818,18 @@ const DB = {
     this.set('users', users);
     return newUser;
   },
-  resetPassword(email, newPassword) {
+  // Reset requires the phone number on file as a second check, not only the email
+  resetPassword(email, phone, newPassword) {
     const users = this.getUsers();
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (user) {
-      user.password = newPassword;
-      this.set('users', users);
-      const current = this.getCurrentUser();
-      if (current && current.email.toLowerCase() === email.toLowerCase()) {
-        current.password = newPassword;
-        this.set('currentUser', current);
-      }
-      return user;
+    if (!user) return { ok: false, reason: 'not_found' };
+    const normalize = v => String(v || '').replace(/[^0-9]/g, '');
+    if (!normalize(phone) || normalize(user.phone) !== normalize(phone)) {
+      return { ok: false, reason: 'phone_mismatch' };
     }
-    return null;
+    user.password = newPassword;
+    this.set('users', users);
+    return { ok: true, user };
   },
   getEquipment() {
     return this.get('equipment', DEFAULT_EQUIPMENT);
@@ -753,27 +837,51 @@ const DB = {
   getRepairs() {
     return this.get('repairs', DEFAULT_REPAIRS);
   },
+  getRepairByTicket(ticketNo) {
+    return this.getRepairs().find(r => r.ticket_no === ticketNo) || null;
+  },
   getPlans() {
     return this.get('plans', DEFAULT_MAINTENANCE_PLANS);
+  },
+  // Ticket format: RQ-<BE year 2 digits><month><day>-<running number of that day>
+  generateTicketNo(repairs) {
+    const d = new Date();
+    const prefix = `RQ-${String((d.getFullYear() + 543) % 100).padStart(2, '0')}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}-`;
+    const used = new Set(repairs.map(r => r.ticket_no));
+    let seq = repairs
+      .filter(r => r.ticket_no.startsWith(prefix))
+      .reduce((max, r) => Math.max(max, Number(r.ticket_no.slice(prefix.length)) || 0), 0) + 1;
+    while (used.has(prefix + String(seq).padStart(3, '0'))) seq++;
+    return prefix + String(seq).padStart(3, '0');
   },
   addRepair(request) {
     const repairs = this.getRepairs();
     const newId = repairs.length > 0 ? Math.max(...repairs.map(r => r.request_id)) + 1 : 1;
-    const ticketNo = `RQ-691028-${String(newId).padStart(3, '0')}`;
-    
+    const ticketNo = this.generateTicketNo(repairs);
+    const now = ThaiDate.now();
+
     const newRecord = {
       request_id: newId,
       ticket_no: ticketNo,
+      technician_id: null,
+      assigned_date: null,
+      assigned_by: null,
+      expected_date: null,
+      expected_time: null,
+      completed_date: null,
+      repair_note: "",
+      repair_image: null,
       ...request,
-      request_date: "28 ต.ค. 2569",
-      request_time: "11:30 น.",
-      request_datetime: "28 ตุลาคม 2569 เวลา 11:30 น.",
+      request_date: now.date,
+      request_time: now.time,
+      request_datetime: now.datetime,
+      updated_at: now.stamp,
       timeline: [
         {
           step: 1,
           title: "ส่งคำขอแจ้งซ่อม",
-          user_info: `${request.requester_name || "ณพัชรกัณฑ์ พัชญ์ชัยพงศา"} · 28 ต.ค. 2569, 11:30 น.`,
-          note: request.problem_title || request.problem_detail?.substring(0, 30),
+          user_info: `${request.requester_name || "ผู้แจ้ง"} · ${now.stamp}`,
+          note: request.problem_title || (request.problem_detail || '').substring(0, 30),
           status: "done"
         },
         {
@@ -802,6 +910,7 @@ const DB = {
 
     repairs.unshift(newRecord);
     this.set('repairs', repairs);
+    this.syncEquipmentStatus(newRecord.equipment_id);
     return newRecord;
   },
   updateRepair(ticketNo, updateData) {
@@ -814,6 +923,79 @@ const DB = {
     }
     return null;
   },
+  // Admin assigns (or reassigns) a technician to a request
+  assignTechnician(ticketNo, technicianId, actorName) {
+    const repair = this.getRepairByTicket(ticketNo);
+    const tech = this.getUserById(technicianId);
+    if (!repair || !tech || repair.status === 'เสร็จสิ้น') return null;
+    const now = ThaiDate.now();
+    const timeline = (repair.timeline || []).map(step => {
+      if (step.step === 2) {
+        return { ...step, status: 'done', user_info: `${actorName} · ${now.stamp}`, note: `มอบหมายให้ ${tech.full_name}${tech.title_role ? ` · ${tech.title_role}` : ''}` };
+      }
+      if (step.step === 3 && step.status === 'pending') {
+        return { ...step, status: 'active', user_info: 'รอเริ่มดำเนินการ', note: '' };
+      }
+      return step;
+    });
+    return this.updateRepair(ticketNo, {
+      technician_id: tech.user_id,
+      assigned_date: now.stamp,
+      assigned_by: actorName,
+      updated_at: now.stamp,
+      timeline
+    });
+  },
+  // Technician updates the work status; keeps timeline, completed_date and equipment status consistent
+  updateRepairProgress(ticketNo, { status, note, expected_date, expected_time, repair_image }, actorName) {
+    const repair = this.getRepairByTicket(ticketNo);
+    if (!repair || !repair.technician_id) return null;
+    const now = ThaiDate.now();
+    const isDone = status === 'เสร็จสิ้น';
+    const timeline = (repair.timeline || []).map(step => {
+      if (step.step === 3) {
+        if (status === 'รอดำเนินการ') return { ...step, status: 'active', user_info: 'รอเริ่มดำเนินการ', note: '' };
+        if (status === 'กำลังดำเนินการ') return { ...step, status: 'active', user_info: `${actorName} · ${now.stamp}`, note: note };
+        if (isDone) {
+          return step.status === 'pending' || step.user_info === 'รอเริ่มดำเนินการ'
+            ? { ...step, status: 'done', user_info: `${actorName} · ${now.stamp}`, note: note }
+            : { ...step, status: 'done' };
+        }
+      }
+      if (step.step === 4) {
+        return isDone
+          ? { ...step, status: 'done', user_info: `${actorName} · ${now.stamp}`, note: `ซ่อมเสร็จ: ${note}` }
+          : { ...step, status: 'pending', user_info: 'รอช่างดำเนินการและผู้แจ้งยืนยัน', note: '' };
+      }
+      return step;
+    });
+    const updated = this.updateRepair(ticketNo, {
+      status,
+      repair_note: note,
+      expected_date,
+      expected_time,
+      repair_image: repair_image !== undefined ? repair_image : repair.repair_image,
+      completed_date: isDone ? `${now.date} ${now.time.replace(' น.', '')}` : null,
+      updated_at: now.stamp,
+      timeline
+    });
+    this.syncEquipmentStatus(repair.equipment_id);
+    return updated;
+  },
+  // Equipment status follows its open repair requests
+  syncEquipmentStatus(equipmentId) {
+    if (!equipmentId) return;
+    const open = this.getRepairs().filter(r => r.equipment_id === equipmentId && r.status !== 'เสร็จสิ้น');
+    let status = 'ใช้งานปกติ';
+    if (open.some(r => r.status === 'กำลังดำเนินการ')) status = 'อยู่ระหว่างซ่อม';
+    else if (open.length > 0) status = 'รอตรวจสอบ';
+    const list = this.getEquipment();
+    const eq = list.find(e => e.equipment_id === equipmentId);
+    if (eq && eq.status !== status) {
+      eq.status = status;
+      this.set('equipment', list);
+    }
+  },
   addEquipment(item) {
     const list = this.getEquipment();
     const newId = list.length > 0 ? Math.max(...list.map(e => e.equipment_id)) + 1 : 1;
@@ -825,6 +1007,15 @@ const DB = {
     this.set('equipment', list);
     return newItem;
   },
+  // Nearest due date among the equipment's maintenance plans
+  getNextDueDate(equipmentId) {
+    const dates = this.getPlans()
+      .filter(p => p.equipment_id === equipmentId)
+      .map(p => ThaiDate.parse(p.next_due_date))
+      .filter(Boolean)
+      .sort((a, b) => a - b);
+    return dates.length ? ThaiDate.format(dates[0]) : null;
+  },
   addPlan(plan) {
     const list = this.getPlans();
     const newId = list.length > 0 ? Math.max(...list.map(p => p.plan_id)) + 1 : 1;
@@ -835,6 +1026,35 @@ const DB = {
     list.unshift(newPlan);
     this.set('plans', list);
     return newPlan;
+  },
+  updatePlan(planId, data) {
+    const list = this.getPlans();
+    const index = list.findIndex(p => p.plan_id === Number(planId));
+    if (index === -1) return null;
+    list[index] = { ...list[index], ...data };
+    this.set('plans', list);
+    return list[index];
+  },
+  // Status derived from the due date: overdue / due within 7 days / scheduled
+  getPlanStatus(plan) {
+    const due = ThaiDate.parse(plan.next_due_date);
+    if (!due) return plan.status || 'รอดำเนินการ';
+    const days = Math.round((due - ThaiDate.today()) / 86400000);
+    if (days < 0) return 'เกินกำหนด';
+    if (days <= 7) return 'ใกล้ครบกำหนด';
+    return 'รอดำเนินการ';
+  },
+  // Record that maintenance was done today; next due = today + plan frequency
+  recordMaintenance(planId, actorName) {
+    const plan = this.getPlans().find(p => p.plan_id === Number(planId));
+    if (!plan) return null;
+    const today = ThaiDate.today();
+    const next = ThaiDate.addMonths(today, frequencyToMonths(plan.frequency));
+    return this.updatePlan(planId, {
+      last_done_date: ThaiDate.format(today),
+      last_done_by: actorName,
+      next_due_date: ThaiDate.format(next)
+    });
   }
 };
 

@@ -164,7 +164,7 @@
 
         <div class="topbar-right">
           <div class="topbar-date d-none d-md-flex">
-            <span>28 ตุลาคม 2569</span>
+            <span id="topbarTodayDate"></span>
           </div>
 
           <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
@@ -204,7 +204,7 @@
             <p class="page-subtitle">กำหนดรอบการดูแลครุภัณฑ์และติดตามงานบำรุงรักษาตามแผน</p>
           </div>
           <div>
-            <button class="btn-primary-custom" type="button" data-bs-toggle="modal" data-bs-target="#addPlanModal">
+            <button class="btn-primary-custom" type="button" data-bs-toggle="modal" data-bs-target="#addPlanModal" data-roles="ผู้ดูแลระบบ">
               <i class="bi bi-plus-lg"></i>
               <span>เพิ่มแผนบำรุงรักษา</span>
             </button>
@@ -214,17 +214,17 @@
         <!-- Month Navigation Bar Matching GUI-7 -->
         <div class="month-nav-card">
           <div class="month-stepper">
-            <button class="month-step-btn" title="เดือนก่อนหน้า"><i class="bi bi-chevron-left"></i></button>
+            <button class="month-step-btn" type="button" title="เดือนก่อนหน้า" onclick="changeMonth(-1)"><i class="bi bi-chevron-left"></i></button>
             <span id="currentPeriodLabel">ตุลาคม – พฤศจิกายน 2569</span>
-            <button class="month-step-btn" title="เดือนถัดไป"><i class="bi bi-chevron-right"></i></button>
+            <button class="month-step-btn" type="button" title="เดือนถัดไป" onclick="changeMonth(1)"><i class="bi bi-chevron-right"></i></button>
           </div>
 
           <div class="status-counter-tags">
-            <span class="status-badge status-urgent">• เกินกำหนด 1</span>
-            <span class="status-badge status-pending">• ใกล้ครบกำหนด 2</span>
+            <span class="status-badge status-urgent" id="planOverdueCount">• เกินกำหนด 0</span>
+            <span class="status-badge status-pending" id="planNearDueCount">• ใกล้ครบกำหนด 0</span>
           </div>
 
-          <button class="btn-secondary-custom" type="button" onclick="dummyExportData('preventive-maintenance-plans.xlsx')">
+          <button class="btn-secondary-custom" type="button" onclick="exportPlans()">
             <i class="bi bi-download"></i>
             <span>ส่งออกแผน</span>
           </button>
@@ -236,25 +236,25 @@
           <div class="table-toolbar">
             <div class="search-input-wrap">
               <i class="bi bi-search"></i>
-              <input type="text" id="planSearchInput" placeholder="ค้นหาแผน หรือครุภัณฑ์" onkeyup="renderPlansTable()">
+              <input type="text" id="planSearchInput" placeholder="ค้นหาแผน หรือครุภัณฑ์" oninput="onPlanFilterChange()">
             </div>
 
             <div class="filter-group">
-              <select class="filter-select" id="planStatusFilter" onchange="renderPlansTable()">
+              <select class="filter-select" id="planStatusFilter" onchange="onPlanFilterChange()">
                 <option value="">สถานะทั้งหมด</option>
                 <option value="เกินกำหนด">เกินกำหนด</option>
                 <option value="ใกล้ครบกำหนด">ใกล้ครบกำหนด</option>
                 <option value="รอดำเนินการ">รอดำเนินการ</option>
               </select>
 
-              <select class="filter-select" id="planTechFilter" onchange="renderPlansTable()">
+              <select class="filter-select" id="planTechFilter" onchange="onPlanFilterChange()">
                 <option value="">ผู้รับผิดชอบทั้งหมด</option>
                 <option value="ธนากร ยั่งยืน">ธนากร ยั่งยืน</option>
                 <option value="ณภัทร สาระคำ">ณภัทร สาระคำ</option>
                 <option value="ชาติวุฒิ ทองจีน">ชาติวุฒิ ทองจีน</option>
               </select>
 
-              <select class="filter-select" id="planFrequencyFilter" onchange="renderPlansTable()">
+              <select class="filter-select" id="planFrequencyFilter" onchange="onPlanFilterChange()">
                 <option value="">ประเภทรอบทั้งหมด</option>
                 <option value="ทุก 3 เดือน">ทุก 3 เดือน</option>
                 <option value="ทุก 6 เดือน">ทุก 6 เดือน</option>
@@ -286,15 +286,8 @@
           <!-- Pagination -->
           <div class="table-pagination-footer">
             <div class="pagination-info" id="planPaginationInfo">
-              แสดง 1-7 จาก 18 แผนงาน
             </div>
-            <div class="pagination-controls">
-              <button class="page-btn" disabled><i class="bi bi-chevron-left"></i></button>
-              <button class="page-btn active">1</button>
-              <button class="page-btn">2</button>
-              <button class="page-btn">3</button>
-              <button class="page-btn"><i class="bi bi-chevron-right"></i></button>
-            </div>
+            <div class="pagination-controls"></div>
           </div>
         </div>
 
@@ -371,16 +364,12 @@
               </div>
               <div class="col-6">
                 <label class="form-label-custom">กำหนดดำเนินการ</label>
-                <input type="text" class="form-control-custom" id="modalPlanDueDate" value="15 พ.ย. 2569">
+                <input type="date" class="form-control-custom" id="modalPlanDueDate" required>
               </div>
             </div>
             <div class="mb-3">
               <label class="form-label-custom">ช่างผู้รับผิดชอบ <span class="text-danger">*</span></label>
-              <select class="form-select-custom" id="modalPlanTechnician" required>
-                <option value="ธนากร ยั่งยืน">ธนากร ยั่งยืน</option>
-                <option value="ณภัทร สาระคำ">ณภัทร สาระคำ</option>
-                <option value="ชาติวุฒิ ทองจีน">ชาติวุฒิ ทองจีน</option>
-              </select>
+              <select class="form-select-custom" id="modalPlanTechnician" required></select>
             </div>
           </div>
           <div class="modal-footer">
@@ -392,111 +381,268 @@
     </div>
   </div>
 
+  <!-- Postpone Plan Modal -->
+  <div class="modal fade" id="postponePlanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title fs-6 fw-bold">เลื่อนกำหนดดำเนินการ</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="postponePlanForm" onsubmit="handlePostponeSubmit(event)">
+          <div class="modal-body p-4">
+            <div class="mb-3 small text-muted font-numeric" id="postponePlanInfo"></div>
+            <label class="form-label-custom">กำหนดใหม่ <span class="text-danger">*</span></label>
+            <input type="date" class="form-control-custom" id="postponeDateInput" required>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">ยกเลิก</button>
+            <button type="submit" class="btn btn-sm btn-primary">บันทึก</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/app.js"></script>
   <script>
+    const PLAN_PAGE_SIZE = 7;
+    let planPage = 1;
+    // Month shown in the period stepper; overdue plans from earlier months stay visible in the current month
+    let viewMonth = new Date(ThaiDate.today().getFullYear(), ThaiDate.today().getMonth(), 1);
+    let postponePlanId = null;
+
     document.addEventListener('DOMContentLoaded', () => {
       populatePlanEquipmentModal();
+      populateTechnicianSelects();
+      document.getElementById('modalPlanDueDate').value = ThaiDate.toISO(ThaiDate.addMonths(ThaiDate.today(), 1));
       renderPlansTable();
     });
 
+    // People who can be responsible for a plan: technicians and admins
+    function getResponsibleUsers() {
+      return DB.getUsers().filter(u => u.role === ROLE_TECH || u.role === ROLE_ADMIN);
+    }
+
     function populatePlanEquipmentModal() {
-      const eqList = DB.getEquipment();
       const select = document.getElementById('modalPlanEquipment');
-      select.innerHTML = eqList.map(e => `
-        <option value="${e.asset_no} · ${e.equipment_name} (${e.location})">
-          ${e.asset_no} · ${e.equipment_name} (${e.location})
+      select.innerHTML = DB.getEquipment().map(e => `
+        <option value="${e.equipment_id}">
+          ${escapeHtml(e.asset_no)} · ${escapeHtml(e.equipment_name)} (${escapeHtml(e.location)})
         </option>
       `).join('');
     }
 
-    function renderPlansTable() {
-      const plans = DB.getPlans();
-      const tbody = document.getElementById('plansTbody');
+    function populateTechnicianSelects() {
+      const people = getResponsibleUsers();
+      document.getElementById('modalPlanTechnician').innerHTML = people.map(u => `
+        <option value="${u.user_id}">${escapeHtml(u.full_name)}</option>
+      `).join('');
+      const names = [...new Set([...people.map(u => u.full_name), ...DB.getPlans().map(p => p.technician_name)])];
+      document.getElementById('planTechFilter').innerHTML = `<option value="">ผู้รับผิดชอบทั้งหมด</option>` +
+        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+    }
+
+    function isCurrentMonth(d) {
+      const t = ThaiDate.today();
+      return d.getFullYear() === t.getFullYear() && d.getMonth() === t.getMonth();
+    }
+
+    function inViewPeriod(plan) {
+      const due = ThaiDate.parse(plan.next_due_date);
+      if (!due) return true;
+      const sameMonth = due.getFullYear() === viewMonth.getFullYear() && due.getMonth() === viewMonth.getMonth();
+      return sameMonth || (isCurrentMonth(viewMonth) && due < viewMonth);
+    }
+
+    function changeMonth(delta) {
+      viewMonth = new Date(viewMonth.getFullYear(), viewMonth.getMonth() + delta, 1);
+      planPage = 1;
+      renderPlansTable();
+    }
+
+    function onPlanFilterChange() {
+      planPage = 1;
+      renderPlansTable();
+    }
+
+    function getFilteredPlans() {
       const search = document.getElementById('planSearchInput').value.toLowerCase().trim();
       const status = document.getElementById('planStatusFilter').value;
       const tech = document.getElementById('planTechFilter').value;
       const freq = document.getElementById('planFrequencyFilter').value;
 
-      const filtered = plans.filter(item => {
-        const matchesSearch = !search || 
-          item.code.toLowerCase().includes(search) || 
+      return DB.getPlans().filter(item => {
+        const matchesSearch = !search ||
+          item.code.toLowerCase().includes(search) ||
           item.equipment_name.toLowerCase().includes(search) ||
           item.task.toLowerCase().includes(search);
-        const matchesStatus = !status || item.status === status;
+        const matchesStatus = !status || DB.getPlanStatus(item) === status;
         const matchesTech = !tech || item.technician_name === tech;
         const matchesFreq = !freq || item.frequency === freq;
-        return matchesSearch && matchesStatus && matchesTech && matchesFreq;
-      });
+        return inViewPeriod(item) && matchesSearch && matchesStatus && matchesTech && matchesFreq;
+      }).sort((a, b) => (ThaiDate.parse(a.next_due_date) || 0) - (ThaiDate.parse(b.next_due_date) || 0));
+    }
+
+    function renderPlansTable() {
+      const tbody = document.getElementById('plansTbody');
+      const canManage = DB.hasRole(ROLE_TECH, ROLE_ADMIN);
+
+      // Period label and counters (counters are for all plans)
+      document.getElementById('currentPeriodLabel').textContent =
+        `${THAI_MONTHS_FULL[viewMonth.getMonth()]} ${viewMonth.getFullYear() + 543}${isCurrentMonth(viewMonth) ? ' (รวมงานค้าง)' : ''}`;
+      const allStatuses = DB.getPlans().map(p => DB.getPlanStatus(p));
+      document.getElementById('planOverdueCount').textContent = `• เกินกำหนด ${allStatuses.filter(s => s === 'เกินกำหนด').length}`;
+      document.getElementById('planNearDueCount').textContent = `• ใกล้ครบกำหนด ${allStatuses.filter(s => s === 'ใกล้ครบกำหนด').length}`;
+
+      const filtered = getFilteredPlans();
 
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบแผนบำรุงรักษาที่ค้นหา</td></tr>`;
+        renderPager('planPaginationInfo', 0, 1, PLAN_PAGE_SIZE, 'แผนงาน', goToPlanPage);
         return;
       }
 
-      tbody.innerHTML = filtered.map(item => {
+      const { page, items } = paginate(filtered, planPage, PLAN_PAGE_SIZE);
+      planPage = page;
+
+      tbody.innerHTML = items.map(item => {
+        const status = DB.getPlanStatus(item);
         let badgeClass = 'status-normal';
-        if (item.status === 'เกินกำหนด') badgeClass = 'status-urgent';
-        if (item.status === 'ใกล้ครบกำหนด') badgeClass = 'status-pending';
-        if (item.status === 'รอดำเนินการ') badgeClass = 'status-pending';
+        if (status === 'เกินกำหนด') badgeClass = 'status-urgent';
+        if (status === 'ใกล้ครบกำหนด') badgeClass = 'status-pending';
 
         return `
           <tr>
             <td>
-              <div class="fw-semibold text-primary font-numeric">${item.code} · ${item.equipment_name}</div>
-              <div class="text-muted small">${item.location}</div>
+              <div class="fw-semibold text-primary font-numeric">${escapeHtml(item.code)} · ${escapeHtml(item.equipment_name)}</div>
+              <div class="text-muted small">${escapeHtml(item.location)}</div>
             </td>
-            <td class="fw-medium text-dark">${item.task}</td>
-            <td class="text-secondary">${item.frequency}</td>
-            <td class="text-secondary font-numeric">${item.next_due_date}</td>
-            <td class="fw-medium text-dark">${item.technician_name}</td>
-            <td><span class="status-badge ${badgeClass}">• ${item.status}</span></td>
+            <td class="fw-medium text-dark">${escapeHtml(item.task)}</td>
+            <td class="text-secondary">${escapeHtml(item.frequency)}</td>
+            <td class="text-secondary font-numeric">
+              ${escapeHtml(item.next_due_date)}
+              ${item.last_done_date ? `<div class="small text-muted">ทำล่าสุด ${escapeHtml(item.last_done_date)}</div>` : ''}
+            </td>
+            <td class="fw-medium text-dark">${escapeHtml(item.technician_name)}</td>
+            <td><span class="status-badge ${badgeClass}">• ${escapeHtml(status)}</span></td>
             <td class="text-center">
+              ${canManage ? `
               <div class="dropdown">
                 <button class="btn btn-sm btn-light border-0 py-0 px-2" type="button" data-bs-toggle="dropdown">
                   <i class="bi bi-three-dots"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="showToast('บันทึกผลการบำรุงรักษา ${item.code}', 'success')"><i class="bi bi-check2-circle me-2 text-success"></i>บันทึกการทำบำรุง</a></li>
-                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="showToast('เลื่อนกำหนดดำเนินการ ${item.code}', 'info')"><i class="bi bi-calendar-event me-2 text-primary"></i>เลื่อนกำหนด</a></li>
+                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="recordPlanDone(${item.plan_id})"><i class="bi bi-check2-circle me-2 text-success"></i>บันทึกการทำบำรุง</a></li>
+                  <li><a class="dropdown-item small" href="javascript:void(0)" onclick="openPostponeModal(${item.plan_id})"><i class="bi bi-calendar-event me-2 text-primary"></i>เลื่อนกำหนด</a></li>
                 </ul>
-              </div>
+              </div>` : '-'}
             </td>
           </tr>
         `;
       }).join('');
 
-      document.getElementById('planPaginationInfo').textContent = `แสดง 1-${Math.min(filtered.length, 7)} จาก ${filtered.length} แผนงาน`;
+      renderPager('planPaginationInfo', filtered.length, planPage, PLAN_PAGE_SIZE, 'แผนงาน', goToPlanPage);
+    }
+
+    function goToPlanPage(page) {
+      planPage = page;
+      renderPlansTable();
+    }
+
+    function recordPlanDone(planId) {
+      const user = DB.getCurrentUser();
+      const updated = DB.recordMaintenance(planId, user.full_name);
+      if (updated) {
+        showToast(`บันทึกการบำรุงรักษา ${updated.code} แล้ว · ครั้งถัดไป ${updated.next_due_date}`, 'success');
+        renderPlansTable();
+      }
+    }
+
+    function openPostponeModal(planId) {
+      const plan = DB.getPlans().find(p => p.plan_id === planId);
+      if (!plan) return;
+      postponePlanId = planId;
+      document.getElementById('postponePlanInfo').textContent = `${plan.code} · ${plan.equipment_name} · กำหนดเดิม ${plan.next_due_date}`;
+      const current = ThaiDate.parse(plan.next_due_date) || ThaiDate.today();
+      const suggested = new Date(Math.max(current, ThaiDate.today()) + 7 * 86400000);
+      document.getElementById('postponeDateInput').value = ThaiDate.toISO(suggested);
+      new bootstrap.Modal(document.getElementById('postponePlanModal')).show();
+    }
+
+    function handlePostponeSubmit(e) {
+      e.preventDefault();
+      const newDate = ThaiDate.fromISO(document.getElementById('postponeDateInput').value);
+      if (!newDate) {
+        showToast('กรุณาเลือกวันที่ใหม่', 'danger');
+        return;
+      }
+      const updated = DB.updatePlan(postponePlanId, { next_due_date: ThaiDate.format(newDate) });
+      bootstrap.Modal.getInstance(document.getElementById('postponePlanModal')).hide();
+      if (updated) {
+        showToast(`เลื่อนกำหนด ${updated.code} เป็น ${updated.next_due_date} แล้ว`, 'success');
+        renderPlansTable();
+      }
     }
 
     function handleAddPlanSubmit(e) {
       e.preventDefault();
-      const code = document.getElementById('modalPlanCode').value.trim();
-      const eqInfo = document.getElementById('modalPlanEquipment').value;
+      if (!DB.hasRole(ROLE_ADMIN)) {
+        showToast('เฉพาะผู้ดูแลระบบเท่านั้นที่เพิ่มแผนบำรุงรักษาได้', 'danger');
+        return;
+      }
+      const code = document.getElementById('modalPlanCode').value.trim().toUpperCase();
+      const eqId = Number(document.getElementById('modalPlanEquipment').value);
       const task = document.getElementById('modalPlanTask').value.trim();
       const freq = document.getElementById('modalPlanFrequency').value;
-      const dueDate = document.getElementById('modalPlanDueDate').value.trim();
-      const tech = document.getElementById('modalPlanTechnician').value;
+      const dueDate = ThaiDate.fromISO(document.getElementById('modalPlanDueDate').value);
+      const tech = DB.getUserById(document.getElementById('modalPlanTechnician').value);
+      const eq = DB.getEquipment().find(item => item.equipment_id === eqId);
+
+      if (DB.getPlans().some(p => p.code.toUpperCase() === code)) {
+        showToast(`รหัสแผนงาน ${code} มีอยู่ในระบบแล้ว`, 'danger');
+        return;
+      }
+      if (!eq || !tech || !dueDate) {
+        showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'danger');
+        return;
+      }
 
       DB.addPlan({
         code: code,
-        equipment_name: eqInfo.split(' (')[0],
-        location: eqInfo.includes('(') ? eqInfo.split('(')[1].replace(')', '') : 'อาคาร ก',
+        equipment_id: eq.equipment_id,
+        technician_id: tech.user_id,
+        equipment_name: `${eq.asset_no} · ${eq.equipment_name}`,
+        location: eq.location_full || eq.location,
         task: task,
         frequency: freq,
-        next_due_date: dueDate,
-        technician_name: tech,
+        next_due_date: ThaiDate.format(dueDate),
+        technician_name: tech.full_name,
         status: "รอดำเนินการ"
       });
 
       const modalEl = document.getElementById('addPlanModal');
       const modal = bootstrap.Modal.getInstance(modalEl);
       modal.hide();
+      document.getElementById('addPlanForm').reset();
+      document.getElementById('modalPlanDueDate').value = ThaiDate.toISO(ThaiDate.addMonths(ThaiDate.today(), 1));
 
       showToast(`เพิ่มแผนบำรุงรักษา ${code} เรียบร้อยแล้ว`, 'success');
+      // Jump to the month of the new plan so it is visible
+      viewMonth = new Date(dueDate.getFullYear(), dueDate.getMonth(), 1);
+      planPage = 1;
+      populateTechnicianSelects();
       renderPlansTable();
+    }
+
+    function exportPlans() {
+      const rows = getFilteredPlans().map(p => [
+        p.code, p.equipment_name, p.location, p.task, p.frequency, p.next_due_date, p.technician_name, DB.getPlanStatus(p)
+      ]);
+      exportCSV('maintenance-plans.csv', ['รหัสแผน', 'ครุภัณฑ์', 'สถานที่', 'รายการบำรุงรักษา', 'รอบดูแล', 'กำหนดดำเนินการ', 'ผู้รับผิดชอบ', 'สถานะ'], rows);
     }
   </script>
 </body>

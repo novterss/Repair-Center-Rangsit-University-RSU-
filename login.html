@@ -343,7 +343,6 @@
               <select class="form-select-custom" id="regRole" required>
                 <option value="เจ้าหน้าที่">อาจารย์ / เจ้าหน้าที่ (ผู้แจ้งซ่อมและติดตามงาน)</option>
                 <option value="ช่างเทคนิค">ช่างเทคนิคประจำอาคาร (ฝ่ายอาคารฯ ตึก 13)</option>
-                <option value="ผู้ดูแลระบบ">ผู้ดูแลระบบ (ฝ่ายอาคารและสิ่งแวดล้อม)</option>
               </select>
             </div>
             <div class="mb-3">
@@ -375,11 +374,15 @@
         <form id="forgotPasswordForm" onsubmit="handleForgotPasswordSubmit(event)">
           <div class="modal-body p-4">
             <p class="text-muted small mb-3">
-              ระบุอีเมลบุคลากร ม.รังสิต (@rsu.ac.th) และตั้งรหัสผ่านใหม่ที่ต้องการใช้งาน
+              ระบุอีเมลบุคลากร ม.รังสิต (@rsu.ac.th) และเบอร์โทรศัพท์/เบอร์ต่อภายในที่ลงทะเบียนไว้ เพื่อยืนยันตัวตนก่อนตั้งรหัสผ่านใหม่
             </p>
             <div class="mb-3">
               <label class="form-label-custom">อีเมลบุคลากร <span class="text-danger">*</span></label>
               <input type="email" class="form-control-custom" id="forgotEmail" placeholder="เช่น naphatcharakan.p68@rsu.ac.th" required value="naphatcharakan.p68@rsu.ac.th">
+            </div>
+            <div class="mb-3">
+              <label class="form-label-custom">เบอร์โทรศัพท์ / เบอร์ต่อที่ลงทะเบียนไว้ <span class="text-danger">*</span></label>
+              <input type="text" class="form-control-custom" id="forgotPhone" placeholder="เช่น ต่อ 1302" required>
             </div>
             <div class="mb-3">
               <label class="form-label-custom">รหัสผ่านใหม่ <span class="text-danger">*</span></label>
@@ -403,6 +406,11 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/data.js"></script>
   <script>
+    // Already logged in -> go straight to the home page of that role
+    if (DB.isLoggedIn()) {
+      window.location.replace(DB.getCurrentUser().role === ROLE_TECH ? 'assigned-tasks.html' : 'index.html');
+    }
+
     function openForgotPasswordModal() {
       const modal = new bootstrap.Modal(document.getElementById('forgotPasswordModal'));
       modal.show();
@@ -411,6 +419,7 @@
     function handleForgotPasswordSubmit(e) {
       e.preventDefault();
       const email = document.getElementById('forgotEmail').value.trim();
+      const phone = document.getElementById('forgotPhone').value.trim();
       const newPass = document.getElementById('forgotNewPassword').value;
       const confirmPass = document.getElementById('forgotConfirmPassword').value;
 
@@ -419,8 +428,8 @@
         return;
       }
 
-      const updated = DB.resetPassword(email, newPass);
-      if (updated) {
+      const result = DB.resetPassword(email, phone, newPass);
+      if (result.ok) {
         const modalEl = document.getElementById('forgotPasswordModal');
         const modal = bootstrap.Modal.getInstance(modalEl);
         modal.hide();
@@ -429,6 +438,8 @@
         document.getElementById('loginPassword').value = newPass;
 
         alert(`รีเซ็ตรหัสผ่านสำเร็จเรียบร้อยแล้ว!\nสามารถกด "เข้าสู่ระบบ" ด้วยรหัสผ่านใหม่ได้ทันที`);
+      } else if (result.reason === 'phone_mismatch') {
+        alert('เบอร์โทรศัพท์ไม่ตรงกับข้อมูลที่ลงทะเบียนไว้ กรุณาตรวจสอบอีกครั้ง หรือติดต่อสำนักงานอาคารฯ ตึก 13 ต่อ 1204');
       } else {
         alert(`ไม่พบบัญชีอีเมล ${email} ในระบบ กรุณาตรวจสอบอีเมลหรือลงทะเบียนใหม่`);
       }
@@ -445,6 +456,11 @@
       const department = document.getElementById('regDepartment').value;
       const phone = document.getElementById('regPhone').value.trim();
       const role = document.getElementById('regRole').value;
+      // Admin accounts cannot be self-registered
+      if (role !== ROLE_STAFF && role !== ROLE_TECH) {
+        alert('ไม่สามารถลงทะเบียนบทบาทนี้ได้');
+        return;
+      }
       const email = document.getElementById('regEmail').value.trim().toLowerCase();
       const password = document.getElementById('regPassword').value;
 
@@ -499,7 +515,7 @@
         }
         DB.setCurrentUser(matchedUser.user_id);
         DB.setLoggedIn(true);
-        if (matchedUser.role === 'ช่างเทคนิค') {
+        if (matchedUser.role === ROLE_TECH) {
           window.location.href = 'assigned-tasks.html';
         } else {
           window.location.href = 'index.html';

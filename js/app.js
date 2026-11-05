@@ -1,22 +1,52 @@
 /* ==========================================================================
    ระบบแจ้งซ่อมและบำรุงรักษา (Repair & Maintenance Management System)
-   App Shell Logic - Sidebar, Topbar, Mobile Drawer, User switcher, Toast
+   App Shell Logic - Auth/Role Guard, Sidebar, Topbar, Mobile Drawer, Toast, Pager, Export
    ========================================================================== */
 
-// Auth Guard Check: If user is not logged in and not on login page, redirect to login.html
+// Roles allowed to open each page (pages not listed are open to every logged-in user)
+const PAGE_ROLES = {
+  'assigned-tasks': [ROLE_TECH, ROLE_ADMIN],
+  'maintenance-plans': [ROLE_TECH, ROLE_ADMIN]
+};
+
+// Page key from the URL, works for both "assets.html" and clean URLs like "/assets" (Vercel)
+function getPageKey(path) {
+  const clean = String(path || '').split(/[?#]/)[0].replace(/\/+$/, '');
+  const last = clean.substring(clean.lastIndexOf('/') + 1).replace(/\.html$/, '');
+  if (last === '' || last === 'dashboard') return 'index';
+  return last;
+}
+
+function canAccessPage(pageKey, user) {
+  const roles = PAGE_ROLES[pageKey];
+  return !roles || (!!user && roles.includes(user.role));
+}
+
+function getHomePageFor(user) {
+  return user && user.role === ROLE_TECH ? 'assigned-tasks.html' : 'index.html';
+}
+
+// Auth Guard: not logged in -> login page; logged in without permission -> home page of that role
 (function checkAuthGuard() {
-  const currentPath = window.location.pathname;
-  const isLoginPage = currentPath.endsWith('login.html') || currentPath.endsWith('login');
-  if (!isLoginPage && typeof DB !== 'undefined') {
-    if (!DB.isLoggedIn()) {
-      window.location.href = 'login.html';
-    }
+  const pageKey = getPageKey(window.location.pathname);
+  if (pageKey === 'login') return;
+  let target = null;
+  if (!DB.isLoggedIn()) {
+    target = 'login.html';
+  } else if (!canAccessPage(pageKey, DB.getCurrentUser())) {
+    target = getHomePageFor(DB.getCurrentUser());
+  }
+  if (target) {
+    // Hide the page so its content does not flash before the redirect
+    document.documentElement.style.visibility = 'hidden';
+    window.location.replace(target);
   }
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
   initAppShell();
   initUserDropdown();
+  applyRoleVisibility();
   highlightActiveMenu();
 });
 
@@ -63,62 +93,55 @@ function updateTopbarUser() {
   if (avatarEl) avatarEl.textContent = currentUser.avatar || currentUser.full_name.substring(0, 2);
   if (nameEl) nameEl.textContent = currentUser.full_name;
   if (roleEl) roleEl.textContent = currentUser.role;
+
+  const todayEl = document.getElementById('topbarTodayDate');
+  if (todayEl) {
+    const d = new Date();
+    todayEl.textContent = `${d.getDate()} ${THAI_MONTHS_FULL[d.getMonth()]} ${d.getFullYear() + 543}`;
+  }
 }
 
+// Profile menu: shows the logged-in user and a logout action (no role switching)
 function initUserDropdown() {
-  const dropdownTrigger = document.getElementById('userProfileDropdown');
-  if (!dropdownTrigger) return;
-
-  const users = DB.getUsers();
-  const currentUser = DB.getCurrentUser();
-
-  // Create a modal or quick popup to switch users for easy demo testing
   const menuContainer = document.getElementById('userProfileMenuOptions');
-  if (menuContainer) {
-    menuContainer.innerHTML = `
-      <div class="p-2 border-bottom text-muted small fw-semibold">สลับบทบาทผู้ใช้ (สำหรับทดสอบ)</div>
-      ${users.map(u => `
-        <li>
-          <a class="dropdown-item d-flex align-items-center gap-2 py-2 ${u.user_id === currentUser.user_id ? 'bg-light font-weight-bold' : ''}" 
-             href="javascript:void(0)" onclick="switchUserRole(${u.user_id})">
-            <span class="user-avatar-initials" style="width: 28px; height: 28px; font-size: 11px;">${u.avatar}</span>
-            <div class="flex-grow-1">
-              <div class="fw-semibold text-dark">${u.full_name}</div>
-              <div class="small text-muted d-flex align-items-center gap-1">
-                ${u.student_id ? `<span class="badge bg-secondary-subtle text-secondary px-1 border" style="font-size: 10.5px;">${u.student_id}</span>` : ''}
-                <span>${u.role}</span>
-              </div>
-            </div>
-            ${u.user_id === currentUser.user_id ? '<i class="bi bi-check text-primary ms-auto fs-5"></i>' : ''}
-          </a>
-        </li>
-      `).join('')}
-      <li><hr class="dropdown-divider"></li>
-      <li><a class="dropdown-item text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="DB.logout()"><i class="bi bi-box-arrow-left"></i> ออกจากระบบ</a></li>
-    `;
-  }
+  const currentUser = DB.getCurrentUser();
+  if (!menuContainer || !currentUser) return;
+
+  menuContainer.innerHTML = `
+    <li class="px-3 py-2 border-bottom">
+      <div class="fw-semibold text-dark">${escapeHtml(currentUser.full_name)}</div>
+      <div class="small text-muted">${escapeHtml(currentUser.email)}</div>
+      <div class="small text-muted d-flex align-items-center gap-1 mt-1">
+        ${currentUser.student_id ? `<span class="badge bg-secondary-subtle text-secondary px-1 border" style="font-size: 10.5px;">${escapeHtml(currentUser.student_id)}</span>` : ''}
+        <span>${escapeHtml(currentUser.role)}</span>
+      </div>
+    </li>
+    <li><a class="dropdown-item text-danger d-flex align-items-center gap-2" href="javascript:void(0)" onclick="DB.logout()"><i class="bi bi-box-arrow-left"></i> ออกจากระบบ</a></li>
+  `;
 }
 
-window.switchUserRole = function(userId) {
-  const newUser = DB.setCurrentUser(userId);
-  if (newUser) {
-    showToast(`สลับผู้ใช้เป็น: ${newUser.full_name} (${newUser.role})`, 'success');
-    updateTopbarUser();
-    setTimeout(() => {
-      // Reload current page to refresh user-specific data
-      window.location.reload();
-    }, 400);
-  }
-};
+// Hide menu links to pages the current role cannot open, and elements marked data-roles="..."
+function applyRoleVisibility() {
+  const user = DB.getCurrentUser();
+  document.querySelectorAll('.sidebar-nav-item a, .mobile-nav-item').forEach(link => {
+    const key = getPageKey(link.getAttribute('href'));
+    if (!canAccessPage(key, user)) {
+      const target = link.closest('.sidebar-nav-item') || link;
+      target.style.display = 'none';
+    }
+  });
+  document.querySelectorAll('[data-roles]').forEach(el => {
+    const roles = el.getAttribute('data-roles').split(',').map(r => r.trim());
+    if (!user || !roles.includes(user.role)) el.style.display = 'none';
+  });
+}
 
 function highlightActiveMenu() {
-  const currentPath = window.location.pathname;
-  const pageName = currentPath.substring(currentPath.lastIndexOf('/') + 1) || 'index.html';
+  const pageKey = getPageKey(window.location.pathname);
 
   const navLinks = document.querySelectorAll('.sidebar-nav-item a, .mobile-nav-item');
   navLinks.forEach(link => {
-    const href = link.getAttribute('href');
-    if (href === pageName || (pageName === '' && href === 'index.html')) {
+    if (getPageKey(link.getAttribute('href')) === pageKey) {
       const parentLi = link.closest('.sidebar-nav-item');
       if (parentLi) {
         document.querySelectorAll('.sidebar-nav-item').forEach(li => li.classList.remove('active'));
@@ -147,18 +170,19 @@ window.showToast = function(message, type = 'info') {
 
   const toast = document.createElement('div');
   const bgClass = type === 'success' ? 'bg-success text-white' : type === 'danger' ? 'bg-danger text-white' : 'bg-dark text-white';
-  
+
   toast.className = `toast align-items-center ${bgClass} border-0 show mb-2 shadow`;
   toast.setAttribute('role', 'alert');
   toast.innerHTML = `
     <div class="d-flex">
       <div class="toast-body d-flex align-items-center gap-2">
         <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : type === 'danger' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill'}"></i>
-        <span>${message}</span>
+        <span>${escapeHtml(message)}</span>
       </div>
       <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
   `;
+  toast.querySelector('.btn-close').addEventListener('click', () => toast.remove());
 
   toastContainer.appendChild(toast);
   setTimeout(() => {
@@ -166,11 +190,52 @@ window.showToast = function(message, type = 'info') {
   }, 4000);
 };
 
-// Global dummy export
-window.dummyExportData = function(filename) {
-  showToast(`กำลังเตรียมไฟล์ส่งออก: ${filename}...`, 'info');
-  setTimeout(() => {
-    showToast(`ส่งออกข้อมูลสำเร็จ! ไฟล์บันทึกแล้ว`, 'success');
-  }, 800);
+// Pagination footer: fills the info text and the sibling .pagination-controls buttons
+window.renderPager = function(infoElId, total, page, pageSize, unit, onPage) {
+  const infoEl = document.getElementById(infoElId);
+  if (!infoEl) return;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+  const current = Math.min(Math.max(1, page), totalPages);
+  const start = total === 0 ? 0 : (current - 1) * pageSize + 1;
+  const end = Math.min(total, current * pageSize);
+  infoEl.textContent = `แสดง ${start}-${end} จาก ${total} ${unit}`;
+
+  const controls = infoEl.parentElement.querySelector('.pagination-controls');
+  if (!controls) return;
+  controls.innerHTML = '';
+  const addBtn = (html, targetPage, { disabled = false, active = false } = {}) => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = `page-btn${active ? ' active' : ''}`;
+    btn.innerHTML = html;
+    btn.disabled = disabled;
+    btn.addEventListener('click', () => onPage(targetPage));
+    controls.appendChild(btn);
+  };
+  addBtn('<i class="bi bi-chevron-left"></i>', current - 1, { disabled: current === 1 });
+  for (let p = 1; p <= totalPages; p++) addBtn(String(p), p, { active: p === current });
+  addBtn('<i class="bi bi-chevron-right"></i>', current + 1, { disabled: current === totalPages });
 };
 
+// Slice of a list for the given page (page is clamped to a valid range)
+window.paginate = function(list, page, pageSize) {
+  const totalPages = Math.max(1, Math.ceil(list.length / pageSize));
+  const current = Math.min(Math.max(1, page), totalPages);
+  return { page: current, items: list.slice((current - 1) * pageSize, current * pageSize) };
+};
+
+// Download rows as a CSV file (UTF-8 with BOM so Excel shows Thai text correctly)
+window.exportCSV = function(filename, headers, rows) {
+  const cell = v => `"${String(v === null || v === undefined ? '' : v).replace(/"/g, '""')}"`;
+  const csv = [headers, ...rows].map(r => r.map(cell).join(',')).join('\r\n');
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  showToast(`ส่งออกข้อมูล ${rows.length} รายการ เป็นไฟล์ ${filename} แล้ว`, 'success');
+};
