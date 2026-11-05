@@ -4,7 +4,9 @@
 **วิชา CSC481** · วิทยาลัยนวัตกรรมดิจิทัลเทคโนโลยี (DIT) · มหาวิทยาลัยรังสิต
 จำลองการทำงานของ **สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)** ตั้งแต่รับแจ้งซ่อม มอบหมายช่าง ซ่อม จนถึงบำรุงรักษาเชิงป้องกัน
 
-> 📄 เอกสารฉบับเต็ม (Workflow, ERD, คำอธิบายทุกตาราง, สคริปต์เดโม และแนวทางตอบคำถาม): **[SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)**
+> 📄 เอกสารระบบฉบับเต็ม (Workflow, สคริปต์เดโม, กฎทางธุรกิจ และแนวทางตอบคำถาม): **[SYSTEM_DOCUMENTATION.md](SYSTEM_DOCUMENTATION.md)**
+>
+> 📘 คำอธิบาย ERD ฉบับเต็ม (Entity, Attribute, Relationship, Cardinality, Data Dictionary, SQL และ Normalization): **[ERD_DOCUMENTATION.md](ERD_DOCUMENTATION.md)**
 
 ---
 
@@ -93,7 +95,8 @@ CSC481/
 ├── erd fixed super final.png  # แผนภาพ ERD
 ├── gui-1.png ~ gui-8.png    # ภาพต้นแบบหน้าจอ
 ├── README.md                # เอกสารแนะนำโปรเจกต์ (ไฟล์นี้)
-└── SYSTEM_DOCUMENTATION.md  # เอกสารระบบฉบับเต็ม
+├── SYSTEM_DOCUMENTATION.md  # เอกสารระบบฉบับเต็ม
+└── ERD_DOCUMENTATION.md     # คำอธิบาย ERD ฉบับเต็ม
 ```
 
 ---

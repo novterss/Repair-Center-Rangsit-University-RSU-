@@ -135,10 +135,12 @@ flowchart LR
 
 อ้างอิงแผนภาพ `erd fixed super final.png` — ประกอบด้วย 4 ตาราง
 
+> 📘 **คำอธิบาย ERD ฉบับเต็ม** (Cardinality แบบ min-max, Data Dictionary, Integrity Constraints, ตัวอย่างข้อมูล, คำสั่ง SQL, ตัวอย่าง Query และการตรวจ Normalization): **[ERD_DOCUMENTATION.md](ERD_DOCUMENTATION.md)**
+
 ```mermaid
 erDiagram
     users ||--o{ repair_requests : "แจ้งซ่อม (requester_id)"
-    users ||--o{ repair_requests : "รับผิดชอบงาน (technician_id)"
+    users |o--o{ repair_requests : "รับผิดชอบงาน (technician_id)"
     equipment ||--o{ repair_requests : "ถูกแจ้งซ่อม (equipment_id)"
     equipment ||--o{ maintenance_plans : "มีแผนบำรุงรักษา (equipment_id)"
     users ||--o{ maintenance_plans : "รับผิดชอบแผน (technician_id)"
