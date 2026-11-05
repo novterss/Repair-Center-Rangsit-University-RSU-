@@ -149,17 +149,11 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid var(--border-color);
 }
 
-.brand-icon {
-  width: 30px;
-  height: 30px;
-  background: var(--ink);
-  color: #f3f2ee;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
+.brand-logo {
+  height: 40px;
+  width: auto;
   flex-shrink: 0;
+  display: block;
 }
 
 .brand-title {
@@ -1589,9 +1583,8 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   justify-content: space-between;
 }
-.login-hero-side .brand-icon {
-  background: #f3f2ee;
-  color: var(--ink);
+.login-hero-side .brand-logo {
+  height: 52px;
 }
 .login-hero-side .brand-title {
   color: #fff;

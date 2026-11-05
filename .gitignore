@@ -4,3 +4,8 @@ node_modules/
 .vscode/
 .idea/
 
+# Local tooling
+.claude/
+
+# Wireframe images (kept locally, not published)
+gui-*.png

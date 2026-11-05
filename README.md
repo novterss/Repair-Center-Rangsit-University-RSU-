@@ -93,7 +93,7 @@ CSC481/
 ├── js/app.js                # Auth/Role Guard, เมนู, Toast, แบ่งหน้า, ส่งออก CSV
 ├── vercel.json              # ตั้งค่า Deploy บน Vercel
 ├── erd fixed super final.png  # แผนภาพ ERD
-├── gui-1.png ~ gui-8.png    # ภาพต้นแบบหน้าจอ
+├── img/rsu-crest.png       # ตรามหาวิทยาลัยรังสิต (โลโก้ / favicon)
 ├── README.md                # เอกสารแนะนำโปรเจกต์ (ไฟล์นี้)
 ├── SYSTEM_DOCUMENTATION.md  # เอกสารระบบฉบับเต็ม
 └── ERD_DOCUMENTATION.md     # คำอธิบาย ERD ฉบับเต็ม
