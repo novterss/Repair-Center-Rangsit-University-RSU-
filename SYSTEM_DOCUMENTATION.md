@@ -178,6 +178,8 @@ flowchart LR
 
 ERD ฉบับปรับปรุงมี **7 ตาราง** (เพิ่ม `categories`, `technician_specialties`, `notifications` จากฉบับแรก)
 
+![ERD 7 ตาราง](erd.png)
+
 > 📘 **คำอธิบาย ERD ฉบับเต็ม** (คีย์แต่ละตัวใช้ทำอะไร, Attribute ทุกตัว, Cardinality แบบ min-max, Data Dictionary, Integrity Constraints, ตัวอย่างข้อมูล, คำสั่ง SQL, ตัวอย่าง Query, การตรวจ Normalization และโค้ดสำหรับวาด ERD ใหม่): **[ERD_DOCUMENTATION.md](ERD_DOCUMENTATION.md)**
 
 ```mermaid

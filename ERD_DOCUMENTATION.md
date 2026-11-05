@@ -3,7 +3,9 @@
 
 **วิชา CSC481** · ERD ฉบับปรับปรุง (7 ตาราง)
 
-> ⚠️ **ภาพ [`erd fixed super final.png`](erd%20fixed%20super%20final.png) เป็น ERD ฉบับเก่า (4 ตาราง)** ฉบับปัจจุบันคือแผนภาพในหัวข้อ 1 ของเอกสารนี้ ถ้าจะวาดภาพใหม่ ใช้โค้ดใน [หัวข้อ 14](#14-โค้ดสำหรับวาด-erd-ใหม่-dbml) วางใน [dbdiagram.io](https://dbdiagram.io) ได้เลย
+![ERD 7 ตาราง](erd.png)
+
+> ไฟล์ภาพ: [`erd.png`](erd.png) · แผนภาพเดียวกันแบบข้อความอยู่ในหัวข้อ 1 · ถ้าต้องการจัดวางเองใช้โค้ดใน [หัวข้อ 14](#14-โค้ดสำหรับวาด-erd-ใหม่-dbml)
 
 ### สิ่งที่เปลี่ยนจาก ERD ฉบับเก่า
 
@@ -47,11 +49,11 @@
 
 ```mermaid
 erDiagram
-    users ||--o{ repair_requests : "R1 แจ้งซ่อม (requester_id)"
-    users |o--o{ repair_requests : "R2 รับผิดชอบงาน (technician_id)"
+    users ||--o{ repair_requests : "R1 แจ้งซ่อม"
+    users |o--o{ repair_requests : "R2 รับงาน"
     equipment ||--o{ repair_requests : "R3 ถูกแจ้งซ่อม"
     equipment ||--o{ maintenance_plans : "R4 มีแผนบำรุงรักษา"
-    users ||--o{ maintenance_plans : "R5 รับผิดชอบแผน"
+    users ||--o{ maintenance_plans : "R5 ดูแลแผน"
     categories ||--o{ equipment : "R6 จัดอยู่ในประเภท"
     users ||--o{ technician_specialties : "R7 มีความถนัด"
     categories ||--o{ technician_specialties : "R8 มีช่างที่รับได้"
@@ -815,7 +817,7 @@ erDiagram
 
 ## 14. โค้ดสำหรับวาด ERD ใหม่ (DBML)
 
-คัดลอกโค้ดนี้ไปวางที่ [dbdiagram.io](https://dbdiagram.io) จะได้แผนภาพ ERD 7 ตารางพร้อมเส้นความสัมพันธ์ แล้ว Export เป็น PNG มาแทนไฟล์ `erd fixed super final.png` ได้
+คัดลอกโค้ดนี้ไปวางที่ [dbdiagram.io](https://dbdiagram.io) จะได้แผนภาพ ERD 7 ตารางพร้อมเส้นความสัมพันธ์ ลากจัดตำแหน่งตารางเองได้ แล้ว Export เป็น PNG มาแทนไฟล์ `erd.png` ได้
 
 ```text
 Table users {

@@ -99,7 +99,7 @@ CSC481/
 ├── js/data.js               # ฐานข้อมูลจำลอง (LocalStorage) + ฟังก์ชันจัดการข้อมูล
 ├── js/app.js                # Auth/Role Guard, เมนู, Toast, แบ่งหน้า, ส่งออก CSV
 ├── vercel.json              # ตั้งค่า Deploy บน Vercel
-├── erd fixed super final.png  # แผนภาพ ERD ฉบับเก่า (ฉบับปัจจุบันอยู่ใน ERD_DOCUMENTATION.md)
+├── erd.png                  # แผนภาพ ERD (7 ตาราง)
 ├── img/rsu-crest.png       # ตรามหาวิทยาลัยรังสิต (โลโก้ / favicon)
 ├── README.md                # เอกสารแนะนำโปรเจกต์ (ไฟล์นี้)
 ├── SYSTEM_DOCUMENTATION.md  # เอกสารระบบฉบับเต็ม
