@@ -100,7 +100,7 @@
             <i class="bi bi-list fs-4"></i>
           </button>
           <div class="system-title-badge">
-            <i class="bi bi-buildings text-primary"></i>
+            <i class="bi bi-buildings"></i>
             <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
           </div>
         </div>
@@ -112,7 +112,6 @@
 
           <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
             <i class="bi bi-bell"></i>
-            <span class="notification-dot"></span>
           </button>
 
           <!-- User dropdown -->
@@ -157,11 +156,8 @@
         <!-- Summary Stat Subtitle Bar Matching GUI-6 -->
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3 text-secondary" style="font-size: 13.5px;">
           <div>
-            <strong class="text-dark">• ครุภัณฑ์ทั้งหมด 248 รายการ</strong>
-            <span class="ms-3 text-muted">ใช้งานปกติ 232 · อยู่ระหว่างซ่อม 8 · รอตรวจสอบ 8</span>
-          </div>
-          <div class="text-muted small">
-            อัปเดตล่าสุด 28 ต.ค. 2569
+            <strong class="text-dark" id="assetSummaryTotal">ครุภัณฑ์ทั้งหมด 0 รายการ</strong>
+            <span class="ms-3 text-muted" id="assetSummaryBreakdown"></span>
           </div>
         </div>
 
@@ -398,6 +394,12 @@
       const tbody = document.getElementById('equipmentTbody');
       const filtered = getFilteredEquipment();
 
+      const all = DB.getEquipment();
+      const countBy = s => all.filter(e => e.status === s).length;
+      document.getElementById('assetSummaryTotal').textContent = `ครุภัณฑ์ทั้งหมด ${all.length} รายการ`;
+      document.getElementById('assetSummaryBreakdown').textContent =
+        `ใช้งานปกติ ${countBy('ใช้งานปกติ')} · อยู่ระหว่างซ่อม ${countBy('อยู่ระหว่างซ่อม')} · รอตรวจสอบ ${countBy('รอตรวจสอบ')}`;
+
       if (filtered.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted">ไม่พบข้อมูลครุภัณฑ์ที่ค้นหา</td></tr>`;
         renderPager('assetPaginationInfo', 0, 1, ASSET_PAGE_SIZE, 'รายการ', goToAssetPage);
@@ -423,7 +425,7 @@
             <td class="fw-medium text-dark">${escapeHtml(item.equipment_name)}</td>
             <td class="text-secondary">${escapeHtml(item.category)}</td>
             <td class="text-secondary">${escapeHtml(item.location)}</td>
-            <td><span class="status-badge ${badgeClass}">• ${escapeHtml(item.status)}</span></td>
+            <td><span class="status-badge ${badgeClass}">${escapeHtml(item.status)}</span></td>
             <td class="text-muted font-numeric">${escapeHtml(getDueDate(item))}</td>
             <td class="text-center">
               <div class="dropdown">

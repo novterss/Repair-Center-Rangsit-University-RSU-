@@ -10,298 +10,120 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <!-- Custom CSS -->
   <link href="css/style.css" rel="stylesheet">
-  <style>
-    .login-wrapper {
-      min-height: 100vh;
-      display: flex;
-    }
-    .login-hero-side {
-      flex: 1.1;
-      background: linear-gradient(145deg, #f0f7ff 0%, #eff6ff 40%, #fdf2f8 100%);
-      padding: 48px 56px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      border-right: 1px solid #e2e8f0;
-    }
-    .login-form-side {
-      flex: 1;
-      background-color: #ffffff;
-      padding: 48px 64px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      overflow-y: auto;
-    }
-    .hero-features-card {
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: var(--radius-xl);
-      padding: 8px 24px;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
-      margin-top: 36px;
-      max-width: 520px;
-    }
-    .feature-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 0;
-    }
-    .feature-item:not(:last-child) {
-      border-bottom: 1px solid #f1f5f9;
-    }
-    .feature-icon-box {
-      width: 44px;
-      height: 44px;
-      border-radius: var(--radius-md);
-      background-color: var(--primary-subtle);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      flex-shrink: 0;
-    }
-    .login-form-container {
-      max-width: 440px;
-      width: 100%;
-      margin: auto;
-    }
-    .input-icon-group {
-      position: relative;
-    }
-    .input-icon-group i.input-icon-left {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      font-size: 16px;
-    }
-    .input-icon-group input {
-      padding-left: 42px;
-      height: 46px;
-      border-radius: var(--radius-md);
-      border: 1px solid #cbd5e1;
-      font-size: 14.5px;
-    }
-    .input-icon-group input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-    .btn-login-submit {
-      height: 48px;
-      background: var(--rsu-gradient);
-      color: white;
-      font-weight: 600;
-      font-size: 15px;
-      border-radius: var(--radius-md);
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-    }
-    .btn-login-submit:hover {
-      opacity: 0.95;
-      box-shadow: 0 4px 14px rgba(225, 29, 72, 0.3);
-      color: white;
-    }
-    .badge-dept {
-      display: inline-block;
-      padding: 6px 14px;
-      background-color: #fce7f3;
-      color: #be185d;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 24px;
-    }
-    .hero-heading {
-      font-size: 38px;
-      font-weight: 700;
-      color: #0f172a;
-      line-height: 1.25;
-      margin-bottom: 16px;
-      letter-spacing: -0.5px;
-    }
-    .hero-sub {
-      font-size: 15px;
-      color: #475569;
-      line-height: 1.6;
-      max-width: 520px;
-    }
-    .test-accounts-box {
-      background-color: #f8fafc;
-      border: 1px dashed #cbd5e1;
-      border-radius: var(--radius-md);
-      padding: 12px;
-      margin-top: 20px;
-      font-size: 12.5px;
-    }
-    @media (max-width: 991px) {
-      .login-wrapper {
-        flex-direction: column;
-      }
-      .login-hero-side {
-        padding: 32px 24px;
-      }
-      .login-form-side {
-        padding: 40px 24px;
-      }
-      .hero-heading {
-        font-size: 28px;
-      }
-    }
-  </style>
 </head>
 <body>
 
   <div class="login-wrapper">
-    <!-- Left Hero Side -->
+    <!-- Left Side: what the system is for -->
     <div class="login-hero-side">
-      <!-- Top Brand -->
-      <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-2">
         <div class="brand-icon">
           <i class="bi bi-tools"></i>
         </div>
         <div>
-          <div class="brand-title" style="color: #0369a1; font-weight: 700;">ศูนย์บริการซ่อมบำรุง</div>
-          <div class="brand-subtitle fw-semibold text-secondary">มหาวิทยาลัยรังสิต (RSU)</div>
+          <div class="brand-title">ศูนย์บริการซ่อมบำรุง</div>
+          <div class="brand-subtitle">มหาวิทยาลัยรังสิต · ตึก 13</div>
         </div>
       </div>
 
-      <!-- Hero Middle Content -->
       <div class="my-auto py-4">
-        <span class="badge-dept">สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</span>
-        <h1 class="hero-heading">
-          ทุกงานซ่อม ดูแลได้<br>ในระบบเดียว
-        </h1>
+        <div class="hero-kicker">สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)</div>
+        <h1 class="hero-heading">ระบบแจ้งซ่อม<br>และบำรุงรักษาครุภัณฑ์</h1>
         <p class="hero-sub">
-          แจ้งปัญหา ติดตามความคืบหน้า และวางแผนบำรุงรักษา เพื่อให้อาคารเรียน ห้องปฏิบัติการ และครุภัณฑ์ของมหาวิทยาลัยรังสิตพร้อมใช้งานเสมอ
+          แจ้งปัญหา ติดตามความคืบหน้า และวางแผนบำรุงรักษาอาคารเรียน ห้องปฏิบัติการ และครุภัณฑ์ของมหาวิทยาลัย
         </p>
 
-        <!-- Feature List Card -->
-        <div class="hero-features-card">
-          <div class="feature-item">
-            <div class="feature-icon-box" style="background-color: #fdf2f8; color: #db2777;">
-              <i class="bi bi-file-earmark-plus"></i>
-            </div>
+        <ol class="hero-steps">
+          <li>
+            <span class="hero-step-no">01</span>
             <div>
-              <div class="fw-semibold text-dark" style="font-size: 15px;">แจ้งซ่อมได้สะดวกรวดเร็ว</div>
-              <div class="text-muted small">ระบุตึก/ห้อง และแนบข้อมูลปัญหาพร้อมภาพถ่าย</div>
+              <div class="hero-step-title">แจ้งซ่อม</div>
+              <div class="hero-step-sub">เลือกครุภัณฑ์ ระบบกรอกตึกและห้องให้ แนบรูปหน้างานได้</div>
             </div>
-          </div>
-
-          <div class="feature-item">
-            <div class="feature-icon-box" style="background-color: #f0f9ff; color: #0284c7;">
-              <i class="bi bi-list-check"></i>
-            </div>
+          </li>
+          <li>
+            <span class="hero-step-no">02</span>
             <div>
-              <div class="fw-semibold text-dark" style="font-size: 15px;">ติดตามได้ทุกขั้นตอน</div>
-              <div class="text-muted small">ตรวจสอบสถานะ เส้นเวลา (Timeline) และทีมช่างผู้ดูแล</div>
+              <div class="hero-step-title">มอบหมายและซ่อม</div>
+              <div class="hero-step-sub">ฝ่ายอาคารฯ มอบหมายช่าง ช่างบันทึกความคืบหน้าทุกขั้น</div>
             </div>
-          </div>
-
-          <div class="feature-item">
-            <div class="feature-icon-box" style="background-color: #f0fdf4; color: #16a34a;">
-              <i class="bi bi-calendar-check"></i>
-            </div>
+          </li>
+          <li>
+            <span class="hero-step-no">03</span>
             <div>
-              <div class="fw-semibold text-dark" style="font-size: 15px;">บำรุงรักษาเชิงป้องกัน (PM)</div>
-              <div class="text-muted small">ดูแลระบบปรับอากาศ ไฟฟ้า และอุปกรณ์แล็บตามรอบ</div>
+              <div class="hero-step-title">บำรุงรักษาตามรอบ</div>
+              <div class="hero-step-sub">แผนดูแลแอร์ ไฟฟ้า และประปา ก่อนอุปกรณ์ชำรุด</div>
             </div>
-          </div>
-        </div>
+          </li>
+        </ol>
       </div>
 
-      <!-- Left Footer -->
-      <div class="text-muted small">
-        มหาวิทยาลัยรังสิต · สำนักงานอาคารและสิ่งแวดล้อม (ตึก 13)
+      <div class="hero-footer">
+        มหาวิทยาลัยรังสิต · โทร. 02-997-2200 ต่อ 1204
       </div>
     </div>
 
-    <!-- Right Form Side -->
+    <!-- Right Side: sign-in form -->
     <div class="login-form-side">
-      <div></div> <!-- Spacer -->
-
       <div class="login-form-container">
-        <h2 class="fw-bold mb-2 text-dark" style="font-size: 28px;">เข้าสู่ระบบ</h2>
-        <p class="text-muted mb-4" style="font-size: 14px; line-height: 1.5;">
-          ยินดีต้อนรับอาจารย์และบุคลากร ม.รังสิต<br>กรุณาใช้อีเมลสถาบันเพื่อเข้าใช้งานระบบแจ้งซ่อม
-        </p>
+        <h2 class="login-title">เข้าสู่ระบบ</h2>
+        <p class="login-lead">สำหรับอาจารย์และบุคลากร ม.รังสิต ใช้อีเมลสถาบันในการเข้าสู่ระบบ</p>
 
         <form id="loginForm" onsubmit="handleLoginSubmit(event)">
           <div class="mb-3">
-            <label class="form-label-custom">อีเมลบุคลากร (@rsu.ac.th)</label>
+            <label class="form-label-custom" for="loginEmail">อีเมลบุคลากร (@rsu.ac.th)</label>
             <div class="input-icon-group">
               <i class="bi bi-envelope input-icon-left"></i>
               <input type="email" id="loginEmail" class="form-control" placeholder="เช่น naphatcharakan.p68@rsu.ac.th" required value="naphatcharakan.p68@rsu.ac.th">
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label-custom">รหัสผ่าน</label>
+          <div class="mb-2">
+            <label class="form-label-custom" for="loginPassword">รหัสผ่าน</label>
             <div class="input-icon-group">
               <i class="bi bi-lock input-icon-left"></i>
               <input type="password" id="loginPassword" class="form-control" placeholder="กรอกรหัสผ่าน" required value="admin123">
             </div>
           </div>
 
-          <div class="d-flex align-items-center justify-content-between mb-4">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="rememberMe" checked>
-              <label class="form-check-label text-muted small" for="rememberMe">
-                จดจำการเข้าสู่ระบบ
-              </label>
-            </div>
-            <a href="javascript:void(0)" onclick="openForgotPasswordModal()" class="small text-decoration-none">ลืมรหัสผ่าน?</a>
+          <div class="text-end mb-3">
+            <a href="javascript:void(0)" onclick="openForgotPasswordModal()" class="small">ลืมรหัสผ่าน?</a>
           </div>
 
           <button type="submit" class="btn btn-login-submit w-100">
-            <i class="bi bi-arrow-right"></i> เข้าสู่ระบบ
+            เข้าสู่ระบบ <i class="bi bi-arrow-right"></i>
           </button>
 
-          <!-- Quick Test Roles Selector -->
+          <!-- Group member accounts for the demo -->
           <div class="test-accounts-box">
-            <div class="fw-semibold text-secondary mb-2 d-flex align-items-center gap-1">
-              <i class="bi bi-people-fill text-primary"></i> บัญชีสมาชิกกลุ่ม (คลิกเพื่อทดสอบเข้าสู่ระบบ):
-            </div>
-            <div class="d-flex flex-wrap gap-1">
-              <button type="button" class="btn btn-sm btn-outline-primary" onclick="setQuickLogin(1)" title="6800401">
-                ณพัชรกัณฑ์ (6800401)
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-danger" onclick="setQuickLogin(2)" title="6803317">
-                ธนากร (6803317)
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-secondary" onclick="setQuickLogin(3)" title="6803162">
-                สรวิชญ์ (6803162)
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-success" onclick="setQuickLogin(4)" title="6803498">
-                ณภัทร (6803498)
-              </button>
-              <button type="button" class="btn btn-sm btn-outline-info" onclick="setQuickLogin(5)" title="6804265">
-                ชาติวุฒิ (6804265)
-              </button>
-            </div>
+            <div class="test-accounts-title">บัญชีสมาชิกกลุ่ม — กดเพื่อกรอกข้อมูลเข้าสู่ระบบ</div>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(1)">
+              <span>ณพัชรกัณฑ์ <span class="font-numeric text-muted">6800401</span></span>
+              <span class="test-account-role">ผู้ดูแลระบบ</span>
+            </button>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(5)">
+              <span>ชาติวุฒิ <span class="font-numeric text-muted">6804265</span></span>
+              <span class="test-account-role">ผู้ดูแลระบบ</span>
+            </button>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(2)">
+              <span>ธนากร <span class="font-numeric text-muted">6803317</span></span>
+              <span class="test-account-role">ช่างเทคนิค</span>
+            </button>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(4)">
+              <span>ณภัทร <span class="font-numeric text-muted">6803498</span></span>
+              <span class="test-account-role">ช่างเทคนิค</span>
+            </button>
+            <button type="button" class="test-account-btn" onclick="setQuickLogin(3)">
+              <span>สรวิชญ์ <span class="font-numeric text-muted">6803162</span></span>
+              <span class="test-account-role">เจ้าหน้าที่</span>
+            </button>
           </div>
 
-          <!-- Security note box -->
-          <div class="mt-4 pt-3 border-top text-muted small d-flex gap-2">
-            <i class="bi bi-shield-check text-success fs-5"></i>
-            <div>
-              สำหรับบุคลากร มหาวิทยาลัยรังสิต เท่านั้น หากยังไม่มีบัญชี กรุณาติดต่อสำนักงานอาคารฯ ตึก 13 ต่อ 1204 หรือ 
-              <a href="javascript:void(0)" onclick="openRegisterModal()" class="fw-semibold text-primary text-decoration-none">คลิกที่นี่เพื่อลงทะเบียนบุคลากรใหม่</a>
-            </div>
+          <div class="login-note">
+            ยังไม่มีบัญชี? ติดต่อสำนักงานอาคารฯ ตึก 13 ต่อ 1204 หรือ
+            <a href="javascript:void(0)" onclick="openRegisterModal()">ลงทะเบียนบุคลากรใหม่</a>
           </div>
         </form>
-      </div>
-
-      <!-- Right Footer -->
-      <div class="text-center text-muted small mt-4">
-        มหาวิทยาลัยรังสิต · Rangsit University
       </div>
     </div>
   </div>

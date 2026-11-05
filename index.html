@@ -100,7 +100,7 @@
             <i class="bi bi-list fs-4"></i>
           </button>
           <div class="system-title-badge">
-            <i class="bi bi-buildings text-primary"></i>
+            <i class="bi bi-buildings"></i>
             <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
           </div>
         </div>
@@ -112,7 +112,6 @@
 
           <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
             <i class="bi bi-bell"></i>
-            <span class="notification-dot"></span>
           </button>
 
           <!-- User dropdown menu with role switcher -->
@@ -161,9 +160,6 @@
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-title">รอดำเนินการ</span>
-              <div class="stat-icon-wrap stat-icon-amber">
-                <i class="bi bi-clock"></i>
-              </div>
             </div>
             <div class="stat-number-wrap">
               <span class="stat-number" id="statPendingCount">0</span>
@@ -176,9 +172,6 @@
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-title">กำลังดำเนินการ</span>
-              <div class="stat-icon-wrap stat-icon-blue">
-                <i class="bi bi-wrench"></i>
-              </div>
             </div>
             <div class="stat-number-wrap">
               <span class="stat-number" id="statInProgressCount">0</span>
@@ -191,9 +184,6 @@
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-title">เสร็จสิ้น</span>
-              <div class="stat-icon-wrap stat-icon-green">
-                <i class="bi bi-check-circle"></i>
-              </div>
             </div>
             <div class="stat-number-wrap">
               <span class="stat-number" id="statCompletedCount">0</span>
@@ -206,9 +196,6 @@
           <div class="stat-card">
             <div class="stat-header">
               <span class="stat-title">เร่งด่วน</span>
-              <div class="stat-icon-wrap stat-icon-red">
-                <i class="bi bi-exclamation-triangle"></i>
-              </div>
             </div>
             <div class="stat-number-wrap">
               <span class="stat-number" id="statUrgentCount">0</span>
@@ -355,20 +342,20 @@
 
     function getPriorityBadge(priority) {
       if (priority === 'เร่งด่วน') {
-        return `<span class="status-badge status-urgent">• เร่งด่วน</span>`;
+        return `<span class="status-badge status-urgent">เร่งด่วน</span>`;
       } else if (priority === 'ต่ำ') {
-        return `<span class="status-badge status-low">• ต่ำ</span>`;
+        return `<span class="status-badge status-low">ต่ำ</span>`;
       }
-      return `<span class="status-badge status-normal">• ปกติ</span>`;
+      return `<span class="status-badge status-normal">ปกติ</span>`;
     }
 
     function getStatusBadge(status) {
       if (status === 'กำลังดำเนินการ') {
-        return `<span class="status-badge status-in-progress">• กำลังดำเนินการ</span>`;
+        return `<span class="status-badge status-in-progress">กำลังดำเนินการ</span>`;
       } else if (status === 'รอดำเนินการ') {
-        return `<span class="status-badge status-pending">• รอดำเนินการ</span>`;
+        return `<span class="status-badge status-pending">รอดำเนินการ</span>`;
       } else if (status === 'เสร็จสิ้น') {
-        return `<span class="status-badge status-completed">• เสร็จสิ้น</span>`;
+        return `<span class="status-badge status-completed">เสร็จสิ้น</span>`;
       }
       return `<span class="status-badge">${escapeHtml(status)}</span>`;
     }

@@ -10,68 +10,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <!-- Custom CSS -->
   <link href="css/style.css" rel="stylesheet">
-  <style>
-    .task-filter-pill-group {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .task-filter-pill {
-      border: 1px solid var(--border-color);
-      background-color: white;
-      padding: 6px 14px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .task-filter-pill:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-    .task-filter-pill.active {
-      background-color: var(--primary);
-      border-color: var(--primary);
-      color: white;
-      font-weight: 600;
-    }
-    .task-row-item {
-      cursor: pointer;
-      transition: background-color 0.15s;
-    }
-    .task-row-item:hover {
-      background-color: #f1f5f9;
-    }
-    .task-row-item.selected {
-      background-color: var(--primary-subtle);
-      border-left: 3px solid var(--primary);
-    }
-    .location-badge-box {
-      background-color: #f8fafc;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      padding: 10px 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--text-secondary);
-      margin-bottom: 18px;
-    }
-    .staff-info-notice {
-      background-color: #f0f7ff;
-      border: 1px solid #bfdbfe;
-      border-radius: var(--radius-lg);
-      padding: 14px 18px;
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-top: 16px;
-    }
-  </style>
 </head>
 <body>
 
@@ -162,7 +100,7 @@
             <i class="bi bi-list fs-4"></i>
           </button>
           <div class="system-title-badge">
-            <i class="bi bi-buildings text-primary"></i>
+            <i class="bi bi-buildings"></i>
             <span>ระบบแจ้งซ่อม มหาวิทยาลัยรังสิต (RSU)</span>
           </div>
         </div>
@@ -174,7 +112,6 @@
 
           <button class="notification-btn" title="การแจ้งเตือน" onclick="showToast('ไม่มีการแจ้งเตือนใหม่', 'info')">
             <i class="bi bi-bell"></i>
-            <span class="notification-dot"></span>
           </button>
 
           <!-- User dropdown -->
@@ -464,8 +401,8 @@
               <div class="fw-medium text-dark">${escapeHtml(item.problem_title)}</div>
               <div class="text-muted small">${escapeHtml(item.location_text)}</div>
             </td>
-            <td><span class="status-badge ${pBadgeClass}">• ${escapeHtml(item.priority)}</span></td>
-            <td><span class="status-badge ${sBadgeClass}">• ${escapeHtml(item.status)}</span></td>
+            <td><span class="status-badge ${pBadgeClass}">${escapeHtml(item.priority)}</span></td>
+            <td><span class="status-badge ${sBadgeClass}">${escapeHtml(item.status)}</span></td>
           </tr>
         `;
       }).join('');
